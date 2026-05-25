@@ -10,5 +10,9 @@
       "redirect": "/.auth/login/aad",
       "statusCode": 302
     }
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/*.css", "/*.js", "/*.png", "/*.jpg", "/*.svg"]
   }
 }
