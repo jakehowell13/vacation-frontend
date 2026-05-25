@@ -1,15 +1,19 @@
 import { Link } from "react-router-dom";
+import {
+  PlaneTakeoff,
+  Home
+} from "lucide-react"
 
 export const Layout = ({ children }) => {
 
     return (
         <div className="min-h-screen flex flex-col bg-primary/5">
             <header className="border-b border-primary/20 bg-primary/95 px-6 py-4 shadow-sm shadow-primary/5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex gap-3 sm:flex-row sm:items-center justify-between">
                     <h1 className="text-2xl font-bold text-background">Vacation Planner</h1>
-                    <nav className="flex gap-4">
-                        <Link to="/" className="rounded-full px-3 py-1.5 text-background hover:bg-primary/10">Home</Link>
-                        <Link to="/trips" className="rounded-full px-3 py-1.5 text-background hover:bg-primary/10">Trips</Link>
+                    <nav className="flex">
+                        <Link to="/" className="rounded-full px-3 py-1.5 text-background hover:bg-primary/10"><Home /></Link>
+                        <Link to="/trips" className="rounded-full px-3 py-1.5 text-background hover:bg-primary/10"><PlaneTakeoff /></Link>
                     </nav>
                 </div>
             </header>

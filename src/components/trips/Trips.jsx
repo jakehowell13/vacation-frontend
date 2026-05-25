@@ -58,7 +58,7 @@ export const Trips = () => {
   const { isPending, isError, data: trips, error } = useGetTrips()
   const sortedTrips = [...(trips ?? [])].sort(
     (firstTrip, secondTrip) =>
-      getStartDateTime(firstTrip) - getStartDateTime(secondTrip)
+      getStartDateTime(secondTrip) - getStartDateTime(firstTrip)
   )
   const tripCount = sortedTrips.length
   const totalBudget = getTotalBudget(sortedTrips)
@@ -69,7 +69,7 @@ export const Trips = () => {
       <section className="overflow-hidden rounded-lg border border-primary/20 bg-background shadow-sm shadow-primary/10">
         <div className="relative bg-primary/10 p-6 sm:p-8">
           {/* <div className="absolute top-6 right-6 hidden size-24 rounded-full border border-primary/20 bg-primary/10 sm:block" /> */}
-          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end justify-between w-full">
+          <div className="relative flex gap-5 flex-row justify-between w-full">
               <h1 className="text-4xl font-bold tracking-tight text-foreground">
                 Trips
               </h1>
@@ -155,7 +155,7 @@ export const Trips = () => {
               <button
                 key={trip.tripID}
                 type="button"
-                className="group relative aspect-[4/3] min-h-72 overflow-hidden rounded-lg border border-white bg-primary/10 text-left shadow-md shadow-primary/10 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/15 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                className="group relative aspect-[4/3] min-h-50 overflow-hidden rounded-lg border border-white bg-primary/10 text-left shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/15 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 onClick={() => navigate(`/trip?id=${trip.tripID}`)}
                 aria-label={`View ${trip.name}`}
               >
@@ -176,10 +176,6 @@ export const Trips = () => {
                 <div className="absolute inset-0 border-[10px] border-white/90 shadow-[inset_0_0_0_1px_rgb(255_255_255_/_0.45)]" />
 
                 <div className="absolute top-4 right-4 w-28 border border-white/70 bg-white/85 p-2 text-center text-[0.66rem] font-bold tracking-[0.08em] text-primary shadow-sm backdrop-blur-sm">
-                  <div className="mb-1 flex items-center justify-center gap-1 border-b border-primary/25 pb-1 uppercase">
-                    <Stamp className="size-3" />
-                    Dates
-                  </div>
                   <div className="leading-tight text-foreground">
                     {dateRange}
                   </div>

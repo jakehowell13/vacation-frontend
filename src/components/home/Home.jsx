@@ -66,7 +66,7 @@ export const Home = () => {
             </div>
           </div>
 
-          <div className="relative mt-10 rounded-lg border border-primary/20 bg-background/80 p-4">
+          {/* <div className="relative mt-10 rounded-lg border border-primary/20 bg-background/80 p-4">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-semibold text-primary">
                 Departure board
@@ -98,7 +98,7 @@ export const Home = () => {
                 )
               })}
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 

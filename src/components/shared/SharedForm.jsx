@@ -55,7 +55,7 @@ export const SharedForm = ({
 
     return (
         
-        <div className="flex flex-col gap-2 overflow-y-auto w-full max-w-[800px] self-center p-2">
+        <div className="flex flex-col gap-2 overflow-y-auto min-w-full sm:min-w-[unset] sm:max-w-[800px] self-center p-2">
             {formConfig.map((field, index) => (
                 !field.doNotRenderCondition && (
                 <div key={index} className="flex flex-col gap-1">
