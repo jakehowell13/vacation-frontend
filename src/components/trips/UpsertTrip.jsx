@@ -6,6 +6,8 @@ import { upsertTrip } from "@/services/trip-service"
 import { format } from "date-fns"
 import { useState } from "react"
 
+
+
 export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
   // const { showLoader, setShowLoader } = useFullPageLoader();
 
@@ -14,6 +16,7 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
   const [startDate, setStartDate] = useState(trip?.startDate)
   const [endDate, setEndDate] = useState(trip?.endDate)
   const [coverImage, setCoverImage] = useState(trip?.coverImage ?? "")
+  const [estimatedBudget, setEstimatedBudget] = useState(trip?.estimatedBudget ?? "")
 
   const [isStartDateOpen, setIsStartDateOpen] = useState(false)
   const [isEndDateOpen, setIsEndDateOpen] = useState(false)
@@ -28,6 +31,7 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
     location: destination,
     startDate: new Date(startDate),
     endDate: new Date(endDate),
+    estimatedBudget: estimatedBudget ? parseFloat(estimatedBudget) : null,
   }
 
   const { isPending, isError, data, error, status, mutateAsync } =
@@ -90,6 +94,15 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
       validationMessage: "End Date cannot be empty.",
       open: isEndDateOpen,
       setOpen: setIsEndDateOpen,
+    },
+    {
+      label: "Estimated Budget",
+      value: estimatedBudget,
+      onChange: (e) => setEstimatedBudget(e.target.value),
+      type: "number",
+      placeholder: "Estimated Budget",
+      required: false,
+      isValidState: true,
     },
   ]
 

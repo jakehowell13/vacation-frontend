@@ -19,6 +19,13 @@ import { UpsertTripCoverImage } from "./UpsertTripCoverImage";
 import { UpsertItineraryItem } from "../itineraryItem/UpsertItineraryItem";
 import { UpsertToDo } from "../to-do/UpsertToDo";
 import { UpsertLeg } from "../legs/UpsertLeg";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 
 const formatDate = (dateString) => {
   if (!dateString) return "Date TBD";
@@ -91,12 +98,9 @@ const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip }
 
   if (sortedItems.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-primary/30 bg-primary/10 p-8 text-center">
+      <div className="rounded-lg border border-dashed border-primary/30 bg-primary/10 p-8 text-center gap-4">
         <p className="font-medium">No itinerary items yet</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {emptyMessage ??
-            "Add activities, meals, lodging, or travel details for this leg."}
-        </p>
+        <UpsertItineraryItem trip={trip} />
       </div>
     );
   }
@@ -297,14 +301,26 @@ export const Trip = () => {
       </section>
 
       {/* SUMMARY */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-        <TripSummaryItem icon={CalendarDays} label="Starts" value={formatDate(trip.startDate)} />
-        <TripSummaryItem icon={CalendarDays} label="Ends" value={formatDate(trip.endDate)} />
-        <TripSummaryItem icon={CircleDollarSign} label="Budget" value={trip.estimatedBudget ? `$${trip.estimatedBudget.toLocaleString()}` : "Budget TBD"} />
-        <TripSummaryItem icon={CircleDollarSign} label="Cost" value={trip.cost ? `$${trip.cost.toLocaleString()}` : "Cost TBD"} />
-        <TripSummaryItem icon={Route} label="Itinerary" value={`${overallItineraryItems.length} items`} />
-        <TripSummaryItem icon={Route} label="Legs" value={`${legs.length} legs`} />
-      </section>
+      <Accordion
+      type="single"
+      collapsible
+      defaultValue="shipping"
+      className="max-w-lg"
+    >
+      <AccordionItem value="shipping" className="border border-primary/15 rounded-lg min-w-full">
+        <AccordionTrigger>Summary Items</AccordionTrigger>
+        <AccordionContent className="w-full grid gap-3 sm:grid-cols-2 lg:grid-cols-6 h-max">
+            <TripSummaryItem icon={CalendarDays} label="Starts" value={formatDate(trip.startDate)} />
+            <TripSummaryItem icon={CalendarDays} label="Ends" value={formatDate(trip.endDate)} />
+            <TripSummaryItem icon={CircleDollarSign} label="Budget" value={trip.estimatedBudget ? `$${trip.estimatedBudget.toLocaleString()}` : "Budget TBD"} />
+            <TripSummaryItem icon={CircleDollarSign} label="Cost" value={trip.cost ? `$${trip.cost.toLocaleString()}` : "Cost TBD"} />
+            <TripSummaryItem icon={Route} label="Itinerary" value={`${overallItineraryItems.length} items`} />
+            <TripSummaryItem icon={Route} label="Legs" value={`${legs.length} legs`} />
+        </AccordionContent>
+      </AccordionItem>
+      
+    </Accordion>
+      
 
       {/* TIMELINE + TODOS */}
       <div className="grid gap-6 lg:grid-cols-3">
