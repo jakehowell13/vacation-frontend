@@ -10,6 +10,7 @@ import {
   Stamp,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { Button } from "../ui/button"
 
 const formatDate = (dateString) => {
   if (!dateString) return ""
@@ -67,28 +68,18 @@ export const Trips = () => {
     <div className="mx-auto flex max-w-6xl flex-col gap-7">
       <section className="overflow-hidden rounded-lg border border-primary/20 bg-background shadow-sm shadow-primary/10">
         <div className="relative bg-primary/10 p-6 sm:p-8">
-          <div className="absolute top-6 right-6 hidden size-24 rounded-full border border-primary/20 bg-primary/10 sm:block" />
-          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/15 px-3 py-1 text-sm font-medium text-primary">
-                <Compass className="size-4" />
-                Vacation board
-              </div>
+          {/* <div className="absolute top-6 right-6 hidden size-24 rounded-full border border-primary/20 bg-primary/10 sm:block" /> */}
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end justify-between w-full">
               <h1 className="text-4xl font-bold tracking-tight text-foreground">
                 Trips
               </h1>
-              <p className="mt-3 text-muted-foreground">
-                Browse every getaway, spot what is coming up, and jump into the
-                itinerary when it is time to plan the details.
-              </p>
-            </div>
 
             <UpsertTrip
               triggerHtml={
-                <button className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/25 transition hover:bg-primary/85">
+                <Button style={{ width: "max-content" }} className="!w-max inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/25 transition hover:bg-primary/85">
                   <Plus className="size-4" />
                   New trip
-                </button>
+                </Button>
               }
             />
           </div>

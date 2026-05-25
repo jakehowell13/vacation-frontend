@@ -8,6 +8,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { TravelMap } from "./TravelMap"
+import { NextTrip } from "./NextTrip"
 
 const launchSteps = [
   {
@@ -102,19 +103,7 @@ export const Home = () => {
       </section>
 
       <aside className="grid gap-4">
-        <div className="rounded-lg border border-primary/20 bg-background p-5 shadow-sm shadow-primary/5">
-          <div className="mb-4 flex size-11 items-center justify-center rounded-full bg-primary/15 text-primary">
-            <PlaneTakeoff className="size-5" />
-          </div>
-          <p className="text-sm font-semibold text-primary">
-            Today&apos;s mode
-          </p>
-          <h2 className="mt-2 text-2xl font-bold">Build the next escape.</h2>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            A good trip starts messy. This app gives the mess a place to become
-            dates, legs, stops, and a plan.
-          </p>
-        </div>
+        <NextTrip />
 
         <div className="rounded-lg border border-primary/20 bg-primary/10 p-5">
           <p className="text-sm font-semibold text-primary">Quick jump</p>
