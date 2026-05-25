@@ -37,7 +37,7 @@ export const SharedDialog = ({
 }) => {
     return (
         <Dialog className="overflow-hidden flex flex-1">
-            <DialogTrigger className="cursor-pointer w-full">{triggerHtml}</DialogTrigger>
+            <DialogTrigger className="cursor-pointer w-max">{triggerHtml}</DialogTrigger>
             <DialogContent className={`bg-(--card) border border-(--border-color) max-w-[60vw] max-h-[80vh] overflow-hidden flex flex-col ${dimensionClasses}`}>
                 {title || description && 
                     <DialogHeader className={'pb-2'}>

@@ -1,6 +1,7 @@
 import "leaflet/dist/leaflet.css"
 import { CircleMarker, MapContainer, Popup, TileLayer } from "react-leaflet"
 import { useGetTrips } from "@/hooks/trips/useGetTrips"
+import { ScrollArea } from "../shared/ScrollArea"
 
 const getCoordinate = (item, fieldNames) => {
   const value = fieldNames
@@ -60,7 +61,7 @@ export const TravelMap = () => {
         <div className="border-b border-primary/15 bg-primary/10 p-5 lg:border-r lg:border-b-0">
           <p className="text-sm font-semibold text-primary">Travel pins</p>
           <h2 className="mt-2 text-2xl font-bold">Places I&apos;ve been</h2>
-          <div className="mt-5 grid gap-3">
+          <div className="mt-5 grid gap-3 ovberflow-hidden flex-1 h-[20rem] min-h-[20rem]">
             {isPending && (
               <div className="h-20 animate-pulse rounded-lg border border-primary/15 bg-background/70" />
             )}
@@ -82,23 +83,26 @@ export const TravelMap = () => {
               </div>
             )}
 
-            {mapPins.map((place) => (
-              <div
-                key={place.id}
-                className="rounded-lg border border-primary/15 bg-background px-4 py-3"
-              >
-                <p className="text-sm font-semibold">{place.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {[place.location, place.tripName].filter(Boolean).join(" - ")}
-                </p>
-              </div>
-            ))}
+            <ScrollArea>
+              {mapPins.map((place) => (
+                <div
+                  key={place.id}
+                  className="rounded-lg border border-primary/15 bg-background px-4 py-3"
+                >
+                  <p className="text-sm font-semibold">{place.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {[place.location, place.tripName].filter(Boolean).join(" - ")}
+                  </p>
+                </div>
+              ))}
+            </ScrollArea>
+            
           </div>
         </div>
 
         <MapContainer
           center={[24, 8]}
-          className="h-[24rem] min-h-[24rem] w-full"
+          className="h-[28rem] min-h-[28rem] w-full"
           scrollWheelZoom={false}
           zoom={2}
         >

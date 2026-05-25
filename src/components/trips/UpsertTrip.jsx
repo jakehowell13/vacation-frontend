@@ -113,7 +113,7 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
     <SharedDialog
       triggerHtml={
         triggerHtml ?? (
-          <Button>
+          <Button style={{ width: "max-content" }} className="!w-max inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/25 transition hover:bg-primary/85">
             <i className="fa-solid fa-gift mr-2"></i> Create New Trip
           </Button>
         )
