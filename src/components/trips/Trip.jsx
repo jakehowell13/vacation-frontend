@@ -133,7 +133,7 @@ const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip }
                   </span>
                   {showLegCallout && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                      {/* <MapPin className="size-3.5" /> */}
+                      <MapPin className="size-3.5" />
                       {item.legName}
                       {item.legLocation ? `, ${item.legLocation}` : ""}
                     </span>
