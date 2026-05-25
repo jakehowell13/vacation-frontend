@@ -15,7 +15,8 @@ export default defineConfig({
       promiseExportName: "__tla",
       // The function to generate import names of top-level await promise in each chunk module
       promiseImportName: i => `__tla_${i}`
-    })
+    }),
+    
 ],
   resolve: {
     alias: {
@@ -29,5 +30,7 @@ export default defineConfig({
         //redirect: resolve(__dirname, "redirect.html"),
       },
     },
+    target: ['es2020', 'edge89', 'firefox79', 'chrome90', 'safari15'],
+
   }
 })
