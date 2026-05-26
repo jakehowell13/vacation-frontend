@@ -113,3 +113,18 @@ export const upsertLeg = async (queryConfig) => {
 
     return await callExternalApi({ config }); 
   }
+
+  export const deleteItineraryItem = async (queryConfig) => {
+  const config = {
+        url: `${apiServerUrl}/itineraryItem/${queryConfig.tripID}/${queryConfig.itineraryItemID}`,
+        method: "DELETE",
+        params: queryConfig.params,
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${queryConfig.token}`
+        },
+        data: queryConfig.data
+      };
+    
+      return await callExternalApi({ config });
+}
