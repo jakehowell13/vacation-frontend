@@ -93,14 +93,14 @@ const TripSummaryItem = ({ icon: Icon, label, value }) => (
   </div>
 );
 
-const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip }) => {
+const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip, refetch }) => {
   const sortedItems = getSortedItineraryItems(items);
 
   if (sortedItems.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-primary/30 bg-primary/10 p-8 text-center gap-4">
         <p className="font-medium">No itinerary items yet</p>
-        <UpsertItineraryItem trip={trip} />
+        <UpsertItineraryItem trip={trip} refetch={refetch} />
       </div>
     );
   }
@@ -116,13 +116,14 @@ const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip }
             {/* Smooth Edit Button */}
             <button
               className="absolute right-3 bottom-3 
-                        opacity-0 scale-95 -translate-y-1
-                        transition-all duration-200 ease-out
+                        sm:opacity-0 scale-95 -translate-y-1
+                        transition-all 
+                        duration-200 ease-out
                         h-10 w-10 flex items-center justify-center
-                        group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0
+                        sm:group-hover:opacity-100 sm:group-hover:scale-100 sm:group-hover:translate-y-0
                         rounded-full bg-primary/10 p-2 text-primary hover:bg-primary/20"
             > 
-              <UpsertItineraryItem trip={trip} itineraryItem={item} triggerHtml={<Pencil className="size-4" />} />
+              <UpsertItineraryItem trip={trip} itineraryItem={item} refetch={refetch} triggerHtml={<Pencil className="size-4" />} />
             </button>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -163,7 +164,7 @@ const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip }
           <div className="rounded-lg border border-primary/15 bg-background p-4 shadow-sm shadow-primary/5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <UpsertItineraryItem trip={trip} />
+                <UpsertItineraryItem trip={trip} refetch={refetch} />
               </div>
             </div>
           </div>
@@ -172,7 +173,7 @@ const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip }
   );
 };
 
-const ToDoList = ({ toDos = [], trip }) => {
+const ToDoList = ({ toDos = [], trip, refetch }) => {
   const [showCompleted, setShowCompleted] = useState(false);
 
   const filtered = toDos.filter(
@@ -191,7 +192,7 @@ const ToDoList = ({ toDos = [], trip }) => {
         </div>
 
         <div className=" flex flex-col gap-2">
-        <UpsertToDo trip={trip} />
+        <UpsertToDo trip={trip} refetch={refetch} />
         <button
           onClick={() => setShowCompleted((prev) => !prev)}
           className="text-xs text-primary hover:underline"
@@ -305,7 +306,7 @@ export const Trip = () => {
       type="single"
       collapsible
       defaultValue="shipping"
-      className="max-w-lg"
+      className="w-full"
     >
       <AccordionItem value="shipping" className="border border-primary/15 rounded-lg min-w-full">
         <AccordionTrigger>Summary Items</AccordionTrigger>
@@ -349,7 +350,7 @@ export const Trip = () => {
             </div>
 
             <TabsContent value="overall">
-              <ItineraryTimeline trip={trip} items={overallItineraryItems} showLegCallout />
+              <ItineraryTimeline trip={trip} items={overallItineraryItems} showLegCallout refetch={refetch} />
             </TabsContent>
 
             {legs.map((leg) => (

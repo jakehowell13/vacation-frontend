@@ -2,13 +2,30 @@ import { SharedDialog } from "@/components/shared/SharedDialog";
 import { SharedForm } from "@/components/shared/SharedForm";
 import { Button } from "@/components/ui/button";
 import { useStandardMutation } from "@/hooks/useStandardMutation";
-import { upsertItineraryItem, upsertTrip } from "@/services/trip-service";
+import { upsertItineraryItem, deleteItineraryItem } from "@/services/trip-service";
 import { format } from "date-fns";
 import { useState } from "react"
 
 export const UpsertItineraryItem = ({ itineraryItem, trip, triggerHtml, refetch })  => {
 
     // const { showLoader, setShowLoader } = useFullPageLoader();
+
+    const itineraryTypes = [
+        { label: 'Activity', value: 1 },
+        { label: 'Transportation', value: 2 },
+        { label: 'Lodging', value: 3 },
+        { label: 'Dining', value: 4 },
+        { label: 'Other', value: 5 }
+    ]
+
+    /**
+     * Activity = 1,
+Transportation = 2,
+Lodging = 3,
+Dining = 4,
+Other = 5
+     * 
+     */
 
     const [name, setName] = useState(itineraryItem?.name);
     const [itineraryType, setItineraryType] = useState(itineraryItem?.itineraryType);
@@ -23,8 +40,10 @@ export const UpsertItineraryItem = ({ itineraryItem, trip, triggerHtml, refetch 
     const [isEndDateOpen, setIsEndDateOpen] = useState(false);
     const [showErrors, setShowErrors] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [open, setOpen] = useState(false);
     
-    const isValidState = !!name;
+    const isValidState = !!name && !!itineraryType && !!legID;
 
     const dto = {
         itineraryItemID: itineraryItem?.itineraryItemID,
@@ -46,6 +65,15 @@ export const UpsertItineraryItem = ({ itineraryItem, trip, triggerHtml, refetch 
         }
     });
 
+    const { mutateAsync: deleteItem } = useStandardMutation({
+        functionToCall: deleteItineraryItem,
+        config: {
+            data: dto,
+            tripID: trip.tripID,
+            itineraryItemID: itineraryItem?.itineraryItemID
+        }
+    });
+
     const config = [
         {
             label: 'Name',
@@ -58,14 +86,38 @@ export const UpsertItineraryItem = ({ itineraryItem, trip, triggerHtml, refetch 
             validationMessage: 'Trip Name cannot be empty.'
         },
         {
+            label: 'Type',
+            value: itineraryType,
+            onChange: (newVal) => setItineraryType(newVal),
+            type: 'dropdown',
+            placeholder: 'Select Type',
+            required: true,
+            options: itineraryTypes,
+            isValidState: !!itineraryType,
+            validationMessage: 'Please select an itinerary type.'
+        },
+        {
+            label: 'Leg',
+            value: legID,
+            onChange: (newVal) => setLegID(newVal),
+            type: 'dropdown',
+            placeholder: 'Select Leg',
+            required: true,
+            isValidState: !!legID,
+            validationMessage: 'Please select a leg.',
+            options: trip.legs?.map(leg => ({
+                label: leg.name,
+                value: leg.legID
+            })) || [],
+        },
+        {
             label: 'Description',
             value: description,
             onChange: (e) => setDescription(e.target.value),
             type: 'textarea',
             placeholder: 'Description',
-            required: true,
-            isValidState: !!description,
-            validationMessage: 'Description cannot be empty.'
+            required: false,
+            isValidState: true
         },
         {
             label: 'External Link',
@@ -108,18 +160,6 @@ export const UpsertItineraryItem = ({ itineraryItem, trip, triggerHtml, refetch 
             required: false,
             open: isEndDateOpen,
             setOpen: setIsEndDateOpen,
-        },
-        {
-            label: 'Leg',
-            value: legID,
-            onChange: (newVal) => setLegID(newVal),
-            type: 'dropdown',
-            placeholder: 'Select Leg',
-            required: false,
-            options: trip.legs?.map(leg => ({
-                label: leg.name,
-                value: leg.legID
-            })) || [],
         }
     ];
 
@@ -137,7 +177,26 @@ export const UpsertItineraryItem = ({ itineraryItem, trip, triggerHtml, refetch 
             .finally(() => {
                 setIsSubmitting(false);
                 // setShowLoader(false);
-                refetch?.();
+                setOpen(false);
+                if(refetch) refetch();
+            });
+    }
+
+    const handleDelete = () => {
+
+        if (!trip.tripID) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        // setShowLoader(true);
+
+        deleteItem()
+            .finally(() => {
+                setIsSubmitting(false);
+                setOpen(false);
+                // setShowLoader(false);
+                if(refetch) refetch();
             });
     }
 
@@ -155,9 +214,15 @@ export const UpsertItineraryItem = ({ itineraryItem, trip, triggerHtml, refetch 
             }
             title={trip ? "Edit Itinerary Item" : "Add Itinerary Item"}
             saveFunction={handleSubmit}
+            deleteFunction={handleDelete}
             disableSave={!isValidState || isSubmitting}
             closeAfterSave={true}
-         />
+            showDelete={!!itineraryItem?.itineraryItemID}
+            deleteText={"Delete"}
+            disableDelete={isSubmitting}
+            open={open}
+            setOpen={setOpen}
+        />
     )
 
 }
