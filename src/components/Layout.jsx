@@ -1,28 +1,125 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"
 import {
+  Home,
   PlaneTakeoff,
-  Home
+  Sparkles,
+  MapPinned,
 } from "lucide-react"
 
 export const Layout = ({ children }) => {
+  const location = useLocation()
 
-    return (
-        <div className="min-h-screen flex flex-col bg-primary/5">
-            <header className="border-b border-primary/20 bg-primary/95 px-6 py-4 shadow-sm shadow-primary/5">
-                <div className="flex gap-3 sm:flex-row sm:items-center justify-between">
-                    <h1 className="text-2xl font-bold text-background">Vacation Planner</h1>
-                    <nav className="flex">
-                        <Link to="/" className="rounded-full px-3 py-1.5 text-background hover:bg-primary/10"><Home /></Link>
-                        <Link to="/trips" className="rounded-full px-3 py-1.5 text-background hover:bg-primary/10"><PlaneTakeoff /></Link>
-                    </nav>
-                </div>
-            </header>
-            <main className="flex-1 p-6">
-                {children}
-            </main>
-            <footer className="border-t border-primary/20 bg-primary/10 px-6 py-4 text-center text-sm text-muted-foreground">
-                <p>&copy; 2024 Vacation Planner. All rights reserved.</p>
-            </footer>
+  const navItems = [
+    {
+      to: "/",
+      label: "Home",
+      icon: Home,
+    },
+    {
+      to: "/trips",
+      label: "Trips",
+      icon: PlaneTakeoff,
+    },
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10">
+      {/* DESKTOP / TABLET HEADER */}
+      <header className="sticky top-0 z-40 border-b border-primary/15 bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="group flex items-center gap-3"
+          >
+            <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:rotate-6">
+              <MapPinned className="size-5" />
+            </div>
+
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">
+                Vacation
+              </p>
+
+              <h1 className="text-lg font-black leading-none text-foreground sm:text-xl">
+                Command Center
+              </h1>
+            </div>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-2 sm:flex">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const isActive = location.pathname === item.to
+
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-bold transition-all ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                      : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="size-4" />
+                  {item.label}
+                </Link>
+              )
+            })}
+
+            <div className="ml-2 hidden items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-2 text-xs font-bold text-primary lg:flex">
+              <Sparkles className="size-3.5" />
+              Vacation mode enabled
+            </div>
+          </nav>
         </div>
-    );
+      </header>
+
+      {/* PAGE */}
+      <main className="mx-auto w-full max-w-7xl flex-1 px-3 py-4 pb-28 sm:px-6 sm:py-6 sm:pb-8">
+        {children}
+      </main>
+
+      {/* MOBILE FLOATING NAV */}
+      <div className="fixed inset-x-0 bottom-4 z-50 px-4 sm:hidden">
+        <nav className="mx-auto flex max-w-sm items-center justify-around rounded-[2rem] border border-primary/20 bg-background/90 p-2 shadow-2xl shadow-primary/20 backdrop-blur-xl">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            const isActive = location.pathname === item.to
+
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex min-w-[110px] flex-col items-center justify-center gap-1 rounded-2xl px-4 py-3 transition-all ${
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <Icon className="size-5" />
+
+                <span className="text-xs font-bold">
+                  {item.label}
+                </span>
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
+
+      {/* FOOTER */}
+      <footer className="hidden border-t border-primary/10 bg-background/60 px-6 py-5 text-center sm:block">
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Sparkles className="size-4 text-primary" />
+          <p>
+            Built for overplanners, airport lovers, and vacation spreadsheet
+            enthusiasts.
+          </p>
+        </div>
+      </footer>
+    </div>
+  )
 }
