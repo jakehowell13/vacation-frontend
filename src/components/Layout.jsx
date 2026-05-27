@@ -62,7 +62,7 @@ export const Layout = ({ children }) => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-bold transition-all ${
+                  className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                       : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
