@@ -1,26 +1,20 @@
 import { useGetTrips } from "@/hooks/trips/useGetTrips"
 import { PlaneTakeoff } from "lucide-react"
 
-export const NextTrip = () => {
-
-    const { isPending, isError, data: trips } = useGetTrips();
-    // Filter out past trips and pick the next upcoming trip (closest to today)
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const upcoming = (trips ?? []).filter((trip) => {
-        const tripDate = new Date(trip.startDate);
-        return tripDate.getTime() >= todayStart.getTime();
-    }).sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
-
-    const nextTrip = upcoming[0];
+export const NextTrip = ({ nextTrip }) => {
     
-    console.log("NextTrip Component - Trips Data:", trips);         
     console.log("NextTrip Component - Next Trip:", nextTrip);
+
+    const handleClick = () => {
+        if (nextTrip) {
+            // Navigate to the trip details page
+            window.location.href = `/trip?id=${nextTrip?.tripID}`;
+        }
+    }
 
     return (
         nextTrip ? (            
-            <div className="rounded-lg border border-primary/20 bg-primary/10 p-5 relative overflow-hidden shadow-sm shadow-primary/5">
+            <div className="rounded-lg border border-primary/20 bg-primary/10 p-5 relative overflow-hidden shadow-sm shadow-primary/5" onClick={handleClick}>
                 {nextTrip.coverPhotoSasUrl && (
                     <div
                         className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] ease-out group-hover:scale-105"
