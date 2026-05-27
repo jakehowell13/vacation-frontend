@@ -20,6 +20,11 @@ export const Layout = ({ children }) => {
       label: "Trips",
       icon: PlaneTakeoff,
     },
+    {
+      to: "/finance",
+      label: "Finance",
+      icon: Sparkles,
+    },
   ]
 
   return (
