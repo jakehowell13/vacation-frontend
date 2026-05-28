@@ -43,7 +43,7 @@ Other = 5
 
     const [open, setOpen] = useState(false);
     
-    const isValidState = !!name && !!itineraryType && !!legID;
+    const isValidState = !!name && !!itineraryType;
 
     const dto = {
         itineraryItemID: itineraryItem?.itineraryItemID,
@@ -97,20 +97,6 @@ Other = 5
             validationMessage: 'Please select an itinerary type.'
         },
         {
-            label: 'Leg',
-            value: legID,
-            onChange: (newVal) => setLegID(newVal),
-            type: 'dropdown',
-            placeholder: 'Select Leg',
-            required: true,
-            isValidState: !!legID,
-            validationMessage: 'Please select a leg.',
-            options: trip.legs?.map(leg => ({
-                label: leg.name,
-                value: leg.legID
-            })) || [],
-        },
-        {
             label: 'Description',
             value: description,
             onChange: (e) => setDescription(e.target.value),
@@ -139,28 +125,42 @@ Other = 5
             label: 'Start Date',
             value: startDateTime,
             onInputChange: (e) => { 
-                setStartDate(e.target.value);
+                setStartDateTime(e.target.value);
             },
-            onSelectChange: (date) => setStartDateTime(date ? format(date, "yyyy-MM-dd") : ""),
+            onSelectChange: (date) => setStartDateTime(date ? format(date, "yyyy-MM-dd h:mm") : ""),
             type: 'date',
             placeholder: 'Start Date',
             required: false,
             open: isStartDateOpen,
             setOpen: setIsStartDateOpen,
+            includeTime: true
         },
         {
             label: 'End Date',
             value: endDateTime,
             onInputChange: (e) => { 
-                setEndDate(e.target.value);
+                setEndDateTime(e.target.value);
             },
-            onSelectChange: (date) => setEndDateTime(date ? format(date, "yyyy-MM-dd") : ""),
+            onSelectChange: (date) => setEndDateTime(date ? format(date, "yyyy-MM-dd h:mm") : ""),
             type: 'date',
             placeholder: 'End Date',
             required: false,
             open: isEndDateOpen,
             setOpen: setIsEndDateOpen,
-        }
+            includeTime: true
+        },
+        {
+            label: 'Leg',
+            value: legID,
+            onChange: (newVal) => setLegID(newVal),
+            type: 'dropdown',
+            placeholder: 'Select Leg',
+            required: false,
+            options: trip.legs?.map(leg => ({
+                label: leg.name,
+                value: leg.legID
+            })) || [],
+        },
     ];
 
     const handleSubmit = () => {

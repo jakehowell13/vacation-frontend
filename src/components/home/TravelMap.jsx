@@ -16,8 +16,35 @@ const getCoordinate = (item, fieldNames) => {
 }
 
 const getMapPins = (trips = []) => {
-  return trips.flatMap((trip) =>
-    (trip.legs ?? [])
+  return trips.flatMap((trip) => {
+    const pins = []
+
+    const tripLatitude = getCoordinate(trip, [
+      "latitude",
+      "Latitude",
+      "lat",
+      "Lat",
+    ])
+    const tripLongitude = getCoordinate(trip, [
+      "longitude",
+      "Longitude",
+      "lng",
+      "Lng",
+      "lon",
+      "Lon",
+    ])
+
+    if (tripLatitude !== null && tripLongitude !== null) {
+      pins.push({
+        id: trip.tripID ?? trip.id ?? `trip-${trip.name}-${tripLatitude}-${tripLongitude}`,
+        name: trip.name,
+        location: trip.location,
+        tripName: trip.name,
+        position: [tripLatitude, tripLongitude],
+      })
+    }
+
+    const legPins = (trip.legs ?? [])
       .map((leg) => {
         const latitude = getCoordinate(leg, [
           "latitude",
@@ -48,7 +75,9 @@ const getMapPins = (trips = []) => {
         }
       })
       .filter(Boolean)
-  )
+
+    return pins.concat(legPins)
+  })
 }
 
 export const TravelMap = () => {
