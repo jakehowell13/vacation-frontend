@@ -69,14 +69,22 @@ const getSortedItineraryItems = (items = []) => {
   });
 };
 
-const getOverallItineraryItems = (legs = []) => {
-  return legs.flatMap((leg) =>
+const getOverallItineraryItems = (trip = {}) => {
+  const tripItems = (trip.itineraryItems ?? []).map((item) => ({
+    ...item,
+    legName: undefined,
+    legLocation: undefined,
+  }));
+
+  const legItems = trip.legs?.flatMap((leg) =>
     (leg.itineraryItems ?? []).map((item) => ({
       ...item,
       legName: leg.name,
       legLocation: leg.location,
     }))
   );
+
+  return [...tripItems, ...(legItems ?? [])];
 };
 
 const TripSummaryItem = ({ icon: Icon, label, value }) => (
@@ -242,7 +250,7 @@ export const Trip = () => {
 
   const { isPending, isError, data: trip, error, refetch } = useGetTrip(id);
   const legs = trip?.legs ?? [];
-  const overallItineraryItems = getOverallItineraryItems(legs);
+  const overallItineraryItems = getOverallItineraryItems(trip);
 
   if (!id) {
     return (

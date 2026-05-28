@@ -19,6 +19,14 @@ import { ImageUpload } from "./ImageUpload";
 import { format, parse, isValid } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { Clock2Icon } from "lucide-react"
+
 
 
 export const SharedForm = ({ 
@@ -50,7 +58,6 @@ export const SharedForm = ({
     const formatDate = (date) => {
         if (!date) return "";
         const d = new Date(date);
-        return d.toISOString().split("T")[0];
     };
 
     return (
@@ -63,14 +70,14 @@ export const SharedForm = ({
                     {field.type === 'date' ?
                         <div className="flex items-center space-x-2">
                             <Input
-                                type="date"
+                                type="datetime-local"
                                 placeholder="MM/dd/yyyy"
                                 value={formatDate(field.value)}
                                 onChange={field.onInputChange}
                                 className="flex-1"
                                 disabled={field.disabled}
                             />
-                            <Popover open={field.open} onOpenChange={field.setOpen}>
+                            {/* <Popover open={field.open} onOpenChange={field.setOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
                                         variant="outline"
@@ -96,8 +103,41 @@ export const SharedForm = ({
                                         onMonthChange={setCalendarMonth}
                                         initialFocus
                                     />
+                                    {field.includeTime && (
+                                        <FieldGroup className="p-4">
+                                            <Field>
+                                                <FieldLabel htmlFor="time-from">Start Time</FieldLabel>
+                                                <InputGroup>
+                                                <InputGroupInput
+                                                    id="time-from"
+                                                type="time"
+                                                step="1"
+                                                defaultValue="10:30:00"
+                                                className="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                            />
+                                            <InputGroupAddon>
+                                                <Clock2Icon className="text-muted-foreground" />
+                                            </InputGroupAddon>
+                                            </InputGroup>
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel htmlFor="time-to">End Time</FieldLabel>
+                                            <InputGroup>
+                                            <InputGroupInput
+                                                id="time-to"
+                                                type="time"
+                                                step="1"
+                                                defaultValue="12:30:00"
+                                                className="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                            />
+                                            <InputGroupAddon>
+                                                <Clock2Icon className="text-muted-foreground" />
+                                            </InputGroupAddon>
+                                            </InputGroup>
+                                        </Field>
+                                    </FieldGroup>)}
                                 </PopoverContent>
-                            </Popover>
+                            </Popover> */}
                         </div>
                     : field.type === 'dropdown' ?
                         <div className="flex flex-col items-end gap-1">
