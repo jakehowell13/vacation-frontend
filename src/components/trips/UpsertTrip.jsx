@@ -16,7 +16,9 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
   const [startDate, setStartDate] = useState(trip?.startDate)
   const [endDate, setEndDate] = useState(trip?.endDate)
   const [coverImage, setCoverImage] = useState(trip?.coverImage ?? "")
-  const [estimatedBudget, setEstimatedBudget] = useState(trip?.estimatedBudget ?? "")
+  const [estimatedBudget, setEstimatedBudget] = useState(trip?.estimatedBudget ?? "");
+  const [latitude, setLatitude] = useState(trip?.latitude ?? "");
+  const [longitude, setLongitude] = useState(trip?.longitude ?? "");
 
   const [isStartDateOpen, setIsStartDateOpen] = useState(false)
   const [isEndDateOpen, setIsEndDateOpen] = useState(false)
@@ -32,6 +34,8 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
     startDate: new Date(startDate),
     endDate: new Date(endDate),
     estimatedBudget: estimatedBudget ? parseFloat(estimatedBudget) : null,
+    latitude: latitude ? parseFloat(latitude) : null,
+    longitude: longitude ? parseFloat(longitude) : null,
   }
 
   const { isPending, isError, data, error, status, mutateAsync } =
@@ -103,6 +107,22 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
       placeholder: "Estimated Budget",
       required: false,
       isValidState: true,
+    },
+    {
+      label: "Latitude",
+      value: latitude,
+      onChange: (e) => setLatitude(e.target.value),
+      type: "number",
+      placeholder: "Latitude",
+      required: false,
+    },
+    {
+      label: "Longitude",
+      value: longitude,
+      onChange: (e) => setLongitude(e.target.value),
+      type: "number",
+      placeholder: "Longitude",
+      required: false,
     },
   ]
 
