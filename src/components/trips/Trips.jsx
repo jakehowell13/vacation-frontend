@@ -55,9 +55,22 @@ export const Trips = () => {
   const { user } = useUser();
   const navigate = useNavigate()
   const { isPending, isError, data: trips, error } = useGetTrips(user);
+  const now = Date.now()
   const sortedTrips = [...(trips ?? [])].sort(
-    (firstTrip, secondTrip) =>
-      getStartDateTime(secondTrip) - getStartDateTime(firstTrip)
+    (firstTrip, secondTrip) => {
+      const firstTime = getStartDateTime(firstTrip)
+      const secondTime = getStartDateTime(secondTrip)
+      const firstIsFuture = firstTime > now
+      const secondIsFuture = secondTime > now
+      
+      if (firstIsFuture && secondIsFuture) {
+        return firstTime - secondTime
+      }
+      if (!firstIsFuture && !secondIsFuture) {
+        return secondTime - firstTime
+      }
+      return firstIsFuture ? -1 : 1
+    }
   )
   const tripCount = sortedTrips.length
   const totalBudget = getTotalBudget(sortedTrips)
