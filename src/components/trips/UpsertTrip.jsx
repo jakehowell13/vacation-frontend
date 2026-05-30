@@ -11,6 +11,8 @@ import { useState } from "react"
 export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
   // const { showLoader, setShowLoader } = useFullPageLoader();
 
+  console.log(trip);
+
   const [name, setName] = useState(trip?.name)
   const [destination, setDestination] = useState(trip?.location)
   const [startDate, setStartDate] = useState(trip?.startDate)
@@ -73,15 +75,11 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
       onInputChange: (e) => {
         setStartDate(e.target.value)
       },
-      onSelectChange: (date) =>
-        setStartDate(date ? format(date, "yyyy-MM-dd") : ""),
       type: "date",
       placeholder: "Start Date",
       required: true,
       isValidState: !!startDate,
       validationMessage: "Start Date cannot be empty.",
-      open: isStartDateOpen,
-      setOpen: setIsStartDateOpen,
     },
     {
       label: "End Date",
@@ -89,15 +87,11 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
       onInputChange: (e) => {
         setEndDate(e.target.value)
       },
-      onSelectChange: (date) =>
-        setEndDate(date ? format(date, "yyyy-MM-dd") : ""),
       type: "date",
       placeholder: "End Date",
       required: true,
       isValidState: !!endDate,
       validationMessage: "End Date cannot be empty.",
-      open: isEndDateOpen,
-      setOpen: setIsEndDateOpen,
     },
     {
       label: "Estimated Budget",

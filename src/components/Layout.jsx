@@ -4,6 +4,10 @@ import {
   PlaneTakeoff,
   Sparkles,
   MapPinned,
+  NotebookPen,
+  ChartColumnBig,
+  Goal,
+  Calendar
 } from "lucide-react"
 
 export const Layout = ({ children }) => {
@@ -17,13 +21,28 @@ export const Layout = ({ children }) => {
     },
     {
       to: "/trips",
-      label: "Trips",
+      label: "Planner",
       icon: PlaneTakeoff,
     },
     {
+      to: "/calendar",
+      label: "Calendar",
+      icon: Calendar,
+    },
+    {
+        to: "/goals",
+        label: "Bucket List",
+        icon: Goal,
+    },
+    // {
+    //   to: "/journal",
+    //   label: "Journal",
+    //   icon: NotebookPen,
+    // },
+    {
       to: "/finance",
       label: "Finance",
-      icon: Sparkles,
+      icon: ChartColumnBig,
     },
   ]
 
@@ -88,7 +107,7 @@ export const Layout = ({ children }) => {
       </main>
 
       {/* MOBILE FLOATING NAV */}
-      <div className="fixed inset-x-0 bottom-4 z-50 px-4 sm:hidden">
+      <div className="fixed inset-x-0 bottom-4 z-200 px-2 sm:hidden">
         <nav className="mx-auto flex max-w-sm items-center justify-around rounded-[2rem] border border-primary/20 bg-background/90 p-2 shadow-2xl shadow-primary/20 backdrop-blur-xl">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -98,7 +117,7 @@ export const Layout = ({ children }) => {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`flex min-w-[110px] flex-col items-center justify-center gap-1 rounded-2xl px-4 py-3 transition-all ${
+                className={`flex min-w-[55px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1 transition-all ${
                   isActive
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                     : "text-muted-foreground"

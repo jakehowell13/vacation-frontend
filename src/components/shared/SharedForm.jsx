@@ -70,7 +70,7 @@ export const SharedForm = ({
                     {field.type === 'date' ?
                         <div className="flex items-center space-x-2">
                             <Input
-                                type="datetime-local"
+                                type={field.includeTime ? "datetime-local" : "date"}
                                 placeholder="MM/dd/yyyy"
                                 value={formatDate(field.value)}
                                 onChange={field.onInputChange}

@@ -102,25 +102,26 @@ export const Home = () => {
         <div className="relative flex flex-col gap-6 p-5 sm:p-7 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:gap-10 lg:p-10">
           {/* LEFT SIDE */}
           <div className="flex flex-col justify-center">
-            <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-primary backdrop-blur">
+            {/* <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-primary backdrop-blur">
               <Sparkles className="size-3.5" />
               Vacation Command Center
-            </div>
+            </div> */}
 
             <h1 className="max-w-xl text-4xl font-black leading-none tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Your travel plans,
+              You're Type-A?
               <span className="mt-2 block text-primary">
-                but way more fun.
+                That's A-Okay!
               </span>
             </h1>
 
             <p className="mt-5 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">
-              Build trips, organize itineraries, pin your adventures, and fully
+              Nothing beats a custom travel planning website built to your exact specifications.
+              Let's build trips, organize itineraries, pin your adventures, and fully
               embrace your Type-A vacation commander era.
             </p>
 
             {/* CTA */}
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row mb-4">
               <Link
                 to="/trips"
                 className="group inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:bg-primary/90"
@@ -139,7 +140,7 @@ export const Home = () => {
             </div>
 
             {/* Mission cards */}
-            <div className="mt-7 grid gap-3">
+            {/* <div className="mt-7 grid gap-3">
               {missionCards.map((card) => {
                 const Icon = card.icon
 
@@ -164,7 +165,42 @@ export const Home = () => {
                   </div>
                 )
               })}
-            </div>
+            </div> */}
+            {/* NEXT TRIP */}
+            <NextTrip nextTrip={nextTrip} />
+
+            {/* MINI STATUS STRIP */}
+            {/* <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-2xl border border-primary/15 bg-primary/5 p-3 text-center">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Mode
+                </p>
+
+                <p className="mt-2 text-sm font-black">
+                  Vacation
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-primary/15 bg-primary/5 p-3 text-center">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Status
+                </p>
+
+                <p className="mt-2 text-sm font-black">
+                  Packed
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-primary/15 bg-primary/5 p-3 text-center">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Energy
+                </p>
+
+                <p className="mt-2 text-sm font-black">
+                  ✈️
+                </p>
+              </div>
+            </div> */}
           </div>
 
           {/* RIGHT SIDE */}
@@ -251,42 +287,6 @@ export const Home = () => {
                     <Sparkles className="mt-1 size-5 shrink-0 text-primary" />
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* NEXT TRIP */}
-            <NextTrip nextTrip={nextTrip} />
-
-            {/* MINI STATUS STRIP */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-2xl border border-primary/15 bg-primary/5 p-3 text-center">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Mode
-                </p>
-
-                <p className="mt-2 text-sm font-black">
-                  Vacation
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-primary/15 bg-primary/5 p-3 text-center">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Status
-                </p>
-
-                <p className="mt-2 text-sm font-black">
-                  Packed
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-primary/15 bg-primary/5 p-3 text-center">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Energy
-                </p>
-
-                <p className="mt-2 text-sm font-black">
-                  ✈️
-                </p>
               </div>
             </div>
           </div>

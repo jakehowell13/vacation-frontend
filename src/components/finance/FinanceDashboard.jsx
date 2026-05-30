@@ -168,7 +168,7 @@ export const FinanceDashboard = () => {
             Yearly Overview
           </h2>
 
-          <ChartContainer config={chartConfig} className="mt-2 h-[220px]">
+          <ChartContainer config={chartConfig} className="mt-2 h-[165px] sm:h-[220px]">
             <ResponsiveContainer>
               <BarChart data={yearlyData}>
                 <CartesianGrid opacity={0.2} />
@@ -187,7 +187,7 @@ export const FinanceDashboard = () => {
             Spending Trend
           </h2>
 
-          <ChartContainer config={chartConfig} className="mt-2 h-[220px]">
+          <ChartContainer config={chartConfig} className="mt-2 h-[165px] sm:h-[220px]">
             <ResponsiveContainer>
               <LineChart data={monthlyData}>
                 <CartesianGrid opacity={0.2} />
@@ -214,8 +214,8 @@ export const FinanceDashboard = () => {
         </h2>
 
         <div className="relative mt-3">
-          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-10 bg-gradient-to-r from-background to-transparent" />
-          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-background to-transparent" />
+          {/* <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-10 bg-gradient-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-background to-transparent" /> */}
 
           <div className="overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]">
             <div className="flex gap-3">
