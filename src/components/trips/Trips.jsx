@@ -18,6 +18,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { useUser } from "@/providers/UserProvider"
 
 const formatDate = (dateString) => {
   if (!dateString) return ""
@@ -51,8 +52,9 @@ const TripStat = ({ icon: Icon, label, value }) => (
 )
 
 export const Trips = () => {
+  const { user } = useUser();
   const navigate = useNavigate()
-  const { isPending, isError, data: trips, error } = useGetTrips()
+  const { isPending, isError, data: trips, error } = useGetTrips(user);
   const sortedTrips = [...(trips ?? [])].sort(
     (firstTrip, secondTrip) =>
       getStartDateTime(secondTrip) - getStartDateTime(firstTrip)

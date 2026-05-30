@@ -33,7 +33,7 @@ export const TripCalendar = ({ trips = [] }) => {
   const [weekOffset, setWeekOffset] = useState(0)
   const isMobile = useIsMobile()
 
-  const visibleDaysCount = isMobile ? 3 : 7
+  const visibleDaysCount = 7 // isMobile ? 3 : 
 
   /**
    * 🔥 Normalize ALL events:

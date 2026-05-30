@@ -11,6 +11,7 @@ import {
 import { useGetTrips } from "@/hooks/trips/useGetTrips"
 import { ScrollArea } from "../shared/ScrollArea"
 import { Postcard } from "../trips/Postcard"
+import { useUser } from "@/providers/UserProvider"
 
 const getCoordinate = (item, fieldNames) => {
   const value = fieldNames
@@ -28,7 +29,8 @@ const getCoordinate = (item, fieldNames) => {
 }
 
 const getMapPins = (trips = []) => {
-  return trips.flatMap((trip) => {
+  console.log("Mapping trips to pins:", trips)
+  return trips.filter((trip) => new Date(trip.startDate) <= new Date()).flatMap((trip) => {
     const pins = []
 
     const tripLatitude = getCoordinate(trip, [
@@ -123,7 +125,8 @@ const dartIcon = L.divIcon({
 })
 
 export const TravelMap = () => {
-  const { isPending, isError, data: trips } = useGetTrips()
+  const { user } = useUser();
+  const { isPending, isError, data: trips } = useGetTrips(user);
 
   const [dart, setDart] = useState(null)
 

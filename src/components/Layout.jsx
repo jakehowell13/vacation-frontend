@@ -7,11 +7,33 @@ import {
   NotebookPen,
   ChartColumnBig,
   Goal,
-  Calendar
+  Calendar,
+  User
 } from "lucide-react"
+import { UserSelector } from "./user-selector/UserSelector"
+import { useUser } from "@/providers/UserProvider"
 
 export const Layout = ({ children }) => {
+  const { user } = useUser()
   const location = useLocation()
+
+  if (user == null) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-gradient-to-br from-primary/5 via-background to-primary/10 px-4 py-12">
+        <div className="w-full max-w-md rounded-[2rem] border border-primary/15 bg-background/90 p-8 shadow-2xl shadow-primary/20">
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-black text-foreground">Select your user</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              A user must be selected before you can access the planner.
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <UserSelector forceOpen />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const navItems = [
     {
@@ -29,11 +51,11 @@ export const Layout = ({ children }) => {
       label: "Calendar",
       icon: Calendar,
     },
-    {
-        to: "/goals",
-        label: "Bucket List",
-        icon: Goal,
-    },
+    // {
+    //     to: "/goals",
+    //     label: "Bucket List",
+    //     icon: Goal,
+    // },
     // {
     //   to: "/journal",
     //   label: "Journal",
@@ -71,6 +93,7 @@ export const Layout = ({ children }) => {
             </div>
           </Link>
 
+          <div className="flex flex-row items-center gap-2">
           {/* Desktop nav */}
           <nav className="hidden items-center gap-2 sm:flex">
             {navItems.map((item) => {
@@ -98,6 +121,8 @@ export const Layout = ({ children }) => {
               Vacation mode enabled
             </div>
           </nav>
+            <UserSelector />
+          </div>
         </div>
       </header>
 

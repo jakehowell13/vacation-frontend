@@ -21,13 +21,14 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
   const [estimatedBudget, setEstimatedBudget] = useState(trip?.estimatedBudget ?? "");
   const [latitude, setLatitude] = useState(trip?.latitude ?? "");
   const [longitude, setLongitude] = useState(trip?.longitude ?? "");
+  const [user, setUser] = useState(trip?.user);
 
   const [isStartDateOpen, setIsStartDateOpen] = useState(false)
   const [isEndDateOpen, setIsEndDateOpen] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const isValidState = !!name && !!destination && !!startDate && !!endDate
+  const isValidState = !!name && !!destination && !!startDate && !!endDate;
 
   const dto = {
     tripID: trip?.tripID,
@@ -38,6 +39,7 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
     estimatedBudget: estimatedBudget ? parseFloat(estimatedBudget) : null,
     latitude: latitude ? parseFloat(latitude) : null,
     longitude: longitude ? parseFloat(longitude) : null,
+    user: user
   }
 
   const { isPending, isError, data, error, status, mutateAsync } =
@@ -118,6 +120,28 @@ export const UpsertTrip = ({ trip, triggerHtml, refetch }) => {
       placeholder: "Longitude",
       required: false,
     },
+    {
+            label: 'People Attending',
+            value: user,
+            onChange: (newVal) => setUser(newVal),
+            type: 'dropdown',
+            placeholder: 'Select People Attending',
+            required: false,
+            options: [
+              {
+                label: 'Both',
+                value: 0,
+              },
+              {
+                label: 'Abby',
+                value: 1,
+              },
+              {
+                label: 'Jake',
+                value: 2,
+              }
+            ],
+        },
   ]
 
   const handleSubmit = () => {

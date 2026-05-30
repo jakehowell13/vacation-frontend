@@ -1,11 +1,14 @@
 import { getTrips } from "@/services/trip-service";
 import { useStandardQuery } from "../useStandardQuery";
+import { useUser } from "@/providers/UserProvider";
 
-export const useGetTrips = () => {
+export const useGetTrips = (user = null) => {
+
     const { isPending, isError, data, error, status, refetch } = useStandardQuery({
-        queryKey: [`trips`],
+        queryKey: [`trips`, user],
         queryConfig: { 
-            params: null
+            params: null,
+            user: user
         },
         queryFn: getTrips,
         enabled: true
