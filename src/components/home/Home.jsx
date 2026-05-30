@@ -14,6 +14,7 @@ import { useGetTrips } from "@/hooks/trips/useGetTrips"
 
 import { TravelMap } from "./TravelMap"
 import { NextTrip } from "./NextTrip"
+import { useUser } from "@/providers/UserProvider"
 
 const missionCards = [
   {
@@ -37,7 +38,8 @@ const missionCards = [
 ]
 
 export const Home = () => {
-  const { isPending, isError, data: trips } = useGetTrips()
+  const { user } = useUser();
+  const { isPending, isError, data: trips } = useGetTrips(user);
 
   // Normalize today
   const todayStart = new Date()

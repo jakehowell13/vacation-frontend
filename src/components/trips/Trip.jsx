@@ -72,14 +72,13 @@ const getSortedItineraryItems = (items = []) => {
 const getOverallItineraryItems = (trip = {}) => {
   const tripItems = (trip.itineraryItems ?? []).map((item) => ({
     ...item,
-    legName: undefined,
-    legLocation: undefined,
+    legLocation: trip.location,
   }));
 
   const legItems = trip.legs?.flatMap((leg) =>
     (leg.itineraryItems ?? []).map((item) => ({
       ...item,
-      legName: leg.name,
+      //legName: leg.name,
       legLocation: leg.location,
     }))
   );
@@ -147,8 +146,8 @@ const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip, 
                   {showLegCallout && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                       <MapPin className="size-3.5" />
-                      {item.legName}
-                      {item.legLocation ? `, ${item.legLocation}` : ""}
+                      {/* {item.legName ?? item.trip?.name} */}
+                      {item.legLocation}
                     </span>
                   )}
                 </div>

@@ -3,8 +3,9 @@ import { callExternalApi } from "./external-api-service";
 const apiServerUrl = import.meta.env.VITE_BASE_API_URL;
 
 export const getTrips = async (queryConfig) => {
+    const url = !!queryConfig.user ? `${apiServerUrl}/trips/${queryConfig.user}` : `${apiServerUrl}/trips`;
     const config = {
-        url: `${apiServerUrl}/trips`,
+        url: url,
         method: "GET",
         params: queryConfig.params,
         headers: {
