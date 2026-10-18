@@ -1,6 +1,7 @@
 import { Layout } from "./components/Layout";
 import AppRoutes from "./routes/AppRoutes";
 import { AuthGate } from "./components/auth/AuthGate";
+import { ProfileCompletionGate } from "./components/profile/ProfileCompletionGate";
 
 function App() {
   return (
@@ -9,9 +10,11 @@ function App() {
     //     <MobileWidthProvider>
     //       <ExemptedPathsProvider>
           <AuthGate>
-            <Layout>
-              <AppRoutes isProtected={true} />
-            </Layout>
+            <ProfileCompletionGate>
+              <Layout>
+                <AppRoutes isProtected={true} />
+              </Layout>
+            </ProfileCompletionGate>
           </AuthGate>
     //       </ExemptedPathsProvider>
     //     </MobileWidthProvider>

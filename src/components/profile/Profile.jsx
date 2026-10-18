@@ -68,8 +68,8 @@ export const Profile = () => {
           </div>
 
           <div className="mt-9 grid gap-5 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-bold">First name<input value={profile.firstName} onChange={(event) => updateProfile("firstName", event.target.value)} placeholder="First name" className="h-11 rounded-xl border border-input bg-background px-3 font-normal outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20" /></label>
-            <label className="grid gap-2 text-sm font-bold">Last name<input value={profile.lastName} onChange={(event) => updateProfile("lastName", event.target.value)} placeholder="Last name" className="h-11 rounded-xl border border-input bg-background px-3 font-normal outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20" /></label>
+            <label className="grid gap-2 text-sm font-bold">First name<input required value={profile.firstName} onChange={(event) => updateProfile("firstName", event.target.value)} placeholder="First name" className="h-11 rounded-xl border border-input bg-background px-3 font-normal outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20" /></label>
+            <label className="grid gap-2 text-sm font-bold">Last name<input required value={profile.lastName} onChange={(event) => updateProfile("lastName", event.target.value)} placeholder="Last name" className="h-11 rounded-xl border border-input bg-background px-3 font-normal outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20" /></label>
             <label className="grid gap-2 text-sm font-bold sm:col-span-2">Email <span className="sr-only">(from your account)</span><span className="relative"><Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><input value={user?.email ?? ""} readOnly className="h-11 w-full rounded-xl border border-input bg-muted/50 py-2 pl-10 pr-3 font-normal text-muted-foreground outline-none" /></span><span className="text-xs font-normal text-muted-foreground">Connected to your Supabase account</span></label>
           </div>
 
