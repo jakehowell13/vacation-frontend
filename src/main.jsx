@@ -4,6 +4,7 @@ import './index.css'
 import { StrictMode } from 'react'
 import App from './App'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { AuthProvider } from './providers/AuthProvider'
 // import { MsalProvider } from '@azure/msal-react';
 // import { msalConfig } from './auth-provider';
 // import { PublicClientApplication, EventType } from '@azure/msal-browser'
@@ -36,11 +37,13 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* <MsalProvider instance={msalInstance}> */}
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </AuthProvider>
     {/* </MsalProvider> */}
   </StrictMode>,
 )

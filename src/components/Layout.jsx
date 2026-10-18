@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
+import { useEffect, useState } from "react"
 import {
   Home,
   PlaneTakeoff,
@@ -8,32 +9,28 @@ import {
   ChartColumnBig,
   Goal,
   Calendar,
-  User
+  UserRound,
+  Lightbulb,
 } from "lucide-react"
-import { UserSelector } from "./user-selector/UserSelector"
-import { useUser } from "@/providers/UserProvider"
+import { useAuth } from "@/providers/AuthProvider"
 
 export const Layout = ({ children }) => {
-  const { user } = useUser()
+  const { user } = useAuth()
   const location = useLocation()
+  const [profile, setProfile] = useState(null)
 
-  if (user == null) {
-    return (
-      <div className="min-h-screen grid place-items-center bg-gradient-to-br from-primary/5 via-background to-primary/10 px-4 py-12">
-        <div className="w-full max-w-md rounded-[2rem] border border-primary/15 bg-background/90 p-8 shadow-2xl shadow-primary/20">
-          <div className="mb-6 text-center">
-            <h1 className="text-2xl font-black text-foreground">Select your user</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              A user must be selected before you can access the planner.
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <UserSelector forceOpen />
-          </div>
-        </div>
-      </div>
-    )
-  }
+  useEffect(() => {
+    const loadProfile = () => {
+      const storedProfile = localStorage.getItem(`vacation-profile-${user?.id ?? "guest"}`)
+      setProfile(storedProfile ? JSON.parse(storedProfile) : null)
+    }
+
+    loadProfile()
+    window.addEventListener("profile-updated", loadProfile)
+    return () => window.removeEventListener("profile-updated", loadProfile)
+  }, [user?.id])
+
+  const initials = `${profile?.firstName?.[0] ?? ""}${profile?.lastName?.[0] ?? ""}`.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"
 
   const navItems = [
     {
@@ -65,6 +62,16 @@ export const Layout = ({ children }) => {
       to: "/finance",
       label: "Finance",
       icon: ChartColumnBig,
+    },
+    {
+      to: "/profile",
+      label: "Profile",
+      icon: UserRound,
+    },
+    {
+      to: "/vision",
+      label: "Vision",
+      icon: Lightbulb,
     },
   ]
 
@@ -121,13 +128,15 @@ export const Layout = ({ children }) => {
               Vacation mode enabled
             </div>
           </nav>
-            <UserSelector />
+            <Link to="/profile" aria-label="Open profile" className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-primary/25 bg-primary/10 text-sm font-black text-primary shadow-sm transition hover:scale-105 hover:border-primary/50">
+              {profile?.avatar ? <img src={profile.avatar} alt="Your profile" className="size-full object-cover" /> : initials}
+            </Link>
           </div>
         </div>
       </header>
 
       {/* PAGE */}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-3 py-4 pb-28 sm:px-6 sm:py-6 sm:pb-8">
+      <main className={location.pathname === "/" ? "h-[calc(100svh-5rem)] w-full overflow-hidden" : "mx-auto w-full max-w-7xl flex-1 px-3 py-4 pb-28 sm:px-6 sm:py-6 sm:pb-8"}>
         {children}
       </main>
 
@@ -160,7 +169,7 @@ export const Layout = ({ children }) => {
       </div>
 
       {/* FOOTER */}
-      <footer className="hidden border-t border-primary/10 bg-background/60 px-6 py-5 text-center sm:block">
+      <footer className={`${location.pathname === "/" ? "hidden" : "hidden sm:block"} border-t border-primary/10 bg-background/60 px-6 py-5 text-center`}>
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Sparkles className="size-4 text-primary" />
           <p>

@@ -1,12 +1,10 @@
 import { useGetTrips } from "@/hooks/trips/useGetTrips"
 import { TripCalendar } from "./TripCalendar"
 import { useState } from "react"        
-import { useUser } from "@/providers/UserProvider";
 
 export const Calendar = () => {
 
-    const { user } = useUser();
-    const {data: trips} = useGetTrips(user)
+    const {data: trips} = useGetTrips()
 
     if(!trips || trips.length === 0) {
         return (

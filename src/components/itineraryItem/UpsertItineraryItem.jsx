@@ -127,7 +127,7 @@ Other = 5
             onInputChange: (e) => { 
                 setStartDateTime(e.target.value);
             },
-            onSelectChange: (date) => setStartDateTime(date ? format(date, "yyyy-MM-dd h:mm") : ""),
+            onSelectChange: (date) => setStartDateTime(date ? format(date, "yyyy-MM-dd'T'HH:mm") : ""),
             type: 'date',
             placeholder: 'Start Date',
             required: false,
@@ -141,7 +141,7 @@ Other = 5
             onInputChange: (e) => { 
                 setEndDateTime(e.target.value);
             },
-            onSelectChange: (date) => setEndDateTime(date ? format(date, "yyyy-MM-dd h:mm") : ""),
+            onSelectChange: (date) => setEndDateTime(date ? format(date, "yyyy-MM-dd'T'HH:mm") : ""),
             type: 'date',
             placeholder: 'End Date',
             required: false,
