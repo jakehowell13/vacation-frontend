@@ -1,6 +1,6 @@
 import { Layout } from "./components/Layout";
-import { UserProvider } from "./providers/UserProvider";
 import AppRoutes from "./routes/AppRoutes";
+import { AuthGate } from "./components/auth/AuthGate";
 
 function App() {
   return (
@@ -8,11 +8,11 @@ function App() {
     //   <ColorProvider defaultColor="system" storageKey="dbtv-games-ui-color">
     //     <MobileWidthProvider>
     //       <ExemptedPathsProvider>
-          <UserProvider defaultUser={null} storageKey="vcc-user-key">
+          <AuthGate>
             <Layout>
               <AppRoutes isProtected={true} />
             </Layout>
-          </UserProvider>
+          </AuthGate>
     //       </ExemptedPathsProvider>
     //     </MobileWidthProvider>
     //   </ColorProvider>

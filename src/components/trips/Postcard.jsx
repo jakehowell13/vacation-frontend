@@ -27,6 +27,15 @@ export const Postcard = ({ trip, smallText = false }) => {
     }
 
     const hasImage = !!trip.coverPhotoSasUrl
+    const coverThemes = [
+        ["#151b35", "#3f2b96", "#ec4899"],
+        ["#102a43", "#0f766e", "#38bdf8"],
+        ["#3f1d2e", "#b45309", "#fbbf24"],
+        ["#18212f", "#334155", "#a855f7"],
+    ]
+    const themeIndex = [...(trip.tripID ?? trip.name ?? "trip")].reduce((total, character) => total + character.charCodeAt(0), 0) % coverThemes.length
+    const [base, middle, accent] = coverThemes[themeIndex]
+    const destinationInitial = (trip.location || trip.name || "V").trim().charAt(0).toUpperCase()
     const location = trip.location || "Location TBD"
     const locationTextSize = smallText ? 'text-xl' :
         location.length > 20
@@ -57,7 +66,19 @@ export const Postcard = ({ trip, smallText = false }) => {
             )}
 
             {!hasImage && (
-                <div className="absolute inset-0 bg-primary/20 [background-image:radial-gradient(circle_at_24%_18%,var(--primary)_0,transparent_34%),linear-gradient(135deg,var(--muted),var(--background))]" />
+                <div
+                    className="absolute inset-0 overflow-hidden"
+                    style={{ background: `linear-gradient(135deg, ${base}, ${middle} 58%, ${accent})` }}
+                >
+                    <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.18)_1px,transparent_1px)] [background-size:28px_28px]" />
+                    <div className="absolute -right-12 -top-16 size-52 rounded-full border-[22px] border-white/15" />
+                    <div className="absolute -bottom-14 -left-10 size-44 rounded-full border border-white/25" />
+                    <div className="absolute left-[16%] top-[38%] h-px w-[68%] rotate-[-18deg] border-t-2 border-dashed border-white/65" />
+                    <div className="absolute left-[14%] top-[42%] size-3 rounded-full border-2 border-white bg-transparent" />
+                    <div className="absolute right-[14%] top-[23%] grid size-11 place-items-center rounded-full bg-white/90 text-xl font-black shadow-lg" style={{ color: accent }}>{destinationInitial}</div>
+                    <p className="absolute left-5 top-5 text-[0.65rem] font-black uppercase tracking-[0.28em] text-white/75">Vacation atlas</p>
+                    <p className="absolute right-5 bottom-20 rotate-[-90deg] text-[0.6rem] font-bold uppercase tracking-[0.22em] text-white/50">Adventure route</p>
+                </div>
             )}
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />

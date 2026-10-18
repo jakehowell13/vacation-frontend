@@ -55,9 +55,16 @@ export const SharedForm = ({
         };
     }, [showClickableDropdown]);
 
-    const formatDate = (date) => {
+    const formatDate = (date, includeTime = false) => {
         if (!date) return "";
-        const d = new Date(date);
+
+        const parsedDate = new Date(date);
+        if (!isValid(parsedDate)) return "";
+
+        return format(
+            parsedDate,
+            includeTime ? "yyyy-MM-dd'T'HH:mm" : "yyyy-MM-dd"
+        );
     };
 
     return (
@@ -72,7 +79,7 @@ export const SharedForm = ({
                             <Input
                                 type={field.includeTime ? "datetime-local" : "date"}
                                 placeholder="MM/dd/yyyy"
-                                value={formatDate(field.value)}
+                                value={formatDate(field.value, field.includeTime)}
                                 onChange={field.onInputChange}
                                 className="flex-1"
                                 disabled={field.disabled}

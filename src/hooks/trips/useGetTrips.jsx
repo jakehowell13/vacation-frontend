@@ -1,6 +1,5 @@
 import { getTrips } from "@/services/trip-service";
 import { useStandardQuery } from "../useStandardQuery";
-import { useUser } from "@/providers/UserProvider";
 
 export const useGetTrips = (user = null) => {
 

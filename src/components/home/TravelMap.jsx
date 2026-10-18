@@ -1,258 +1,77 @@
-import { useMemo, useState } from "react"
-import L from "leaflet"
+import { useEffect, useMemo, useState } from "react"
+import { Link } from "react-router-dom"
+import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
-import {
-  CircleMarker,
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-} from "react-leaflet"
-import { useGetTrips } from "@/hooks/trips/useGetTrips"
-import { ScrollArea } from "../shared/ScrollArea"
-import { Postcard } from "../trips/Postcard"
-import { useUser } from "@/providers/UserProvider"
+import { CalendarDays, MapPin, Navigation } from "lucide-react"
 
-const getCoordinate = (item, fieldNames) => {
-  const value = fieldNames
-    .map((field) => item?.[field])
-    .find(
-      (fieldValue) =>
-        fieldValue !== undefined &&
-        fieldValue !== null &&
-        fieldValue !== ""
-    )
-
+const getCoordinate = (item, names) => {
+  const value = names.map((name) => item?.[name]).find((candidate) => candidate !== undefined && candidate !== null && candidate !== "")
   const coordinate = Number(value)
-
   return Number.isFinite(coordinate) ? coordinate : null
 }
 
-const getMapPins = (trips = []) => {
-  console.log("Mapping trips to pins:", trips)
-  return trips.filter((trip) => new Date(trip.startDate) <= new Date()).flatMap((trip) => {
-    const pins = []
+const getMapPins = (trips = []) => trips.flatMap((trip) => {
+  const latitude = getCoordinate(trip, ["latitude", "Latitude", "lat", "Lat"])
+  const longitude = getCoordinate(trip, ["longitude", "Longitude", "lng", "Lng", "lon", "Lon"])
+  const tripPins = latitude !== null && longitude !== null ? [{ id: trip.tripID ?? trip.id, name: trip.name, location: trip.location, position: [latitude, longitude], trip }] : []
+  const legPins = (trip.legs ?? []).map((leg) => {
+    const legLatitude = getCoordinate(leg, ["latitude", "Latitude", "lat", "Lat"])
+    const legLongitude = getCoordinate(leg, ["longitude", "Longitude", "lng", "Lng", "lon", "Lon"])
+    if (legLatitude === null || legLongitude === null) return null
+    return { id: leg.legID ?? leg.id ?? `${trip.tripID}-${leg.name}-${legLatitude}-${legLongitude}`, name: leg.name ?? trip.name, location: leg.location ?? trip.location, position: [legLatitude, legLongitude], trip }
+  }).filter(Boolean)
+  return tripPins.concat(legPins)
+})
 
-    const tripLatitude = getCoordinate(trip, [
-      "latitude",
-      "Latitude",
-      "lat",
-      "Lat",
-    ])
-
-    const tripLongitude = getCoordinate(trip, [
-      "longitude",
-      "Longitude",
-      "lng",
-      "Lng",
-      "lon",
-      "Lon",
-    ])
-
-    if (tripLatitude !== null && tripLongitude !== null) {
-      pins.push({
-        id:
-          trip.tripID ??
-          trip.id ??
-          `trip-${trip.name}-${tripLatitude}-${tripLongitude}`,
-        name: trip.name,
-        location: trip.location,
-        tripName: trip.name,
-        position: [tripLatitude, tripLongitude],
-      })
-    }
-
-    const legPins = (trip.legs ?? [])
-      .map((leg) => {
-        const latitude = getCoordinate(leg, [
-          "latitude",
-          "Latitude",
-          "lat",
-          "Lat",
-        ])
-
-        const longitude = getCoordinate(leg, [
-          "longitude",
-          "Longitude",
-          "lng",
-          "Lng",
-          "lon",
-          "Lon",
-        ])
-
-        if (latitude === null || longitude === null) return null
-
-        return {
-          id:
-            leg.legID ??
-            leg.id ??
-            `${trip.tripID ?? trip.id}-${leg.name}-${latitude}-${longitude}`,
-          name: leg.name,
-          location: leg.location,
-          tripName: trip.name,
-          position: [latitude, longitude],
-          trip:trip
-        }
-      })
-      .filter(Boolean)
-
-    return pins.concat(legPins)
-  })
+const MapFocus = ({ pin, shouldFocus }) => {
+  const map = useMap()
+  useEffect(() => {
+    if (pin && shouldFocus) map.flyTo(pin.position, Math.max(map.getZoom(), 7), { duration: 0.65 })
+  }, [map, pin, shouldFocus])
+  return null
 }
 
-const getRandomDart = () => ({
-  id: `dart-${Date.now()}`,
-  position: [
-    Number((Math.random() * 180 - 90).toFixed(4)),
-    Number((Math.random() * 360 - 180).toFixed(4)),
-  ],
-})
+const formatTripDates = (trip) => {
+  if (!trip?.startDate) return "Dates TBD"
+  const options = { month: "short", day: "numeric" }
+  const start = new Date(trip.startDate).toLocaleDateString(undefined, options)
+  const end = trip.endDate && new Date(trip.endDate).toLocaleDateString(undefined, options)
+  return end ? `${start} – ${end}` : start
+}
 
-const dartIcon = L.divIcon({
-  html: `
-    <div style="
-      font-size: 30px;
-      line-height: 30px;
-      text-align: center;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
-    ">
-      🎯
-    </div>
-  `,
-  className: "",
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
-})
+export const TravelMap = ({ trips = [], isPending, isError }) => {
+  const pins = useMemo(() => getMapPins(trips), [trips])
+  const [selectedPin, setSelectedPin] = useState(null)
+  const [hasSelectedPin, setHasSelectedPin] = useState(false)
 
-export const TravelMap = () => {
-  const { user } = useUser();
-  const { isPending, isError, data: trips } = useGetTrips(user);
-
-  const [dart, setDart] = useState(null)
-
-  const mapPins = useMemo(() => getMapPins(trips), [trips])
-
-  const throwDart = () => {
-    setDart(getRandomDart())
-  }
+  useEffect(() => {
+    setSelectedPin((current) => pins.find((pin) => pin.id === current?.id) ?? pins[0] ?? null)
+  }, [pins])
 
   return (
-    <section className="overflow-hidden rounded-lg border border-primary/20 bg-background shadow-sm shadow-primary/10 lg:col-span-2">
-      <div className="grid gap-0 lg:grid-cols-[18rem_minmax(0,1fr)]">
-        <div className="border-b border-primary/15 bg-primary/10 p-5 lg:border-r lg:border-b-0">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-primary">Travel pins</p>
-              <h2 className="mt-2 text-2xl font-bold">
-                Places I&apos;ve been
-              </h2>
-            </div>
+    <div className="relative h-full w-full">
+      <MapContainer center={[24, 8]} zoom={2} minZoom={2} scrollWheelZoom className="h-full w-full" zoomControl={false}>
+        <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapFocus pin={selectedPin} shouldFocus={hasSelectedPin} />
+        {pins.map((pin) => (
+          <CircleMarker key={pin.id} center={pin.position} radius={selectedPin?.id === pin.id ? 12 : 8} eventHandlers={{ click: () => { setSelectedPin(pin); setHasSelectedPin(true) } }} pathOptions={{ color: "white", fillColor: "var(--primary)", fillOpacity: 0.95, weight: selectedPin?.id === pin.id ? 4 : 2 }}>
+            <Popup><strong>{pin.name}</strong>{pin.location && <><br />{pin.location}</>}</Popup>
+          </CircleMarker>
+        ))}
+      </MapContainer>
 
-            <button
-              type="button"
-              onClick={throwDart}
-              className="rounded-md border border-primary/20 bg-background px-3 py-2 text-sm font-medium transition hover:bg-primary hover:text-primary-foreground"
-            >
-              Throw Dart 🎯
-            </button>
-          </div>
-
-          <div className="mt-5 grid h-[20rem] min-h-[20rem] flex-1 gap-3 overflow-hidden">
-            {isPending && (
-              <div className="h-20 animate-pulse rounded-lg border border-primary/15 bg-background/70" />
-            )}
-
-            {isError && (
-              <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
-                <p className="text-sm font-semibold text-destructive">
-                  Unable to load trip pins
-                </p>
-              </div>
-            )}
-
-            {!isPending && !isError && mapPins.length === 0 && (
-              <div className="rounded-lg border border-dashed border-primary/30 bg-background px-4 py-3">
-                <p className="text-sm font-semibold">No mapped trips yet</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Add coordinates to a leg to pin it here.
-                </p>
-              </div>
-            )}
-
-            <ScrollArea>
-              <div className="space-y-3">
-                {mapPins.map((place) => (
-                  <div
-                    key={place.id}
-                    className="rounded-lg border border-primary/15 bg-background px-4 py-3"
-                  >
-                    <p className="text-sm font-semibold">{place.name}</p>
-
-                    <p className="text-sm text-muted-foreground">
-                      {[place.location, place.tripName]
-                        .filter(Boolean)
-                        .join(" - ")}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
+      <div className="absolute right-3 top-28 z-[450] hidden w-64 rounded-2xl border border-white/20 bg-slate-950/80 p-3 text-white shadow-xl backdrop-blur-md lg:block">
+        <p className="px-2 pb-2 text-xs font-bold uppercase tracking-[0.18em] text-white/65">Map pins · {pins.length}</p>
+        <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
+          {pins.map((pin) => <button key={pin.id} type="button" onClick={() => { setSelectedPin(pin); setHasSelectedPin(true) }} className={`w-full rounded-xl px-3 py-2 text-left transition ${selectedPin?.id === pin.id ? "bg-primary text-primary-foreground" : "hover:bg-white/10"}`}><p className="truncate text-sm font-bold">{pin.name}</p><p className={`truncate text-xs ${selectedPin?.id === pin.id ? "text-primary-foreground/80" : "text-white/60"}`}>{pin.location ?? pin.trip?.name}</p></button>)}
         </div>
-
-        <MapContainer
-          center={[24, 8]}
-          className="h-[28rem] min-h-[28rem] w-full"
-          scrollWheelZoom={false}
-          zoom={2}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-
-          {mapPins.map((place) => (
-            <CircleMarker
-              key={place.id}
-              center={place.position}
-              radius={8}
-              fillColor="var(--primary)"
-              fillOpacity={0.85}
-              pathOptions={{
-                color: "white",
-                fillColor: "var(--primary)",
-                fillOpacity: 0.85,
-                weight: 2,
-              }}
-            >
-              <Popup>
-                {/* <strong>{place.name}</strong>
-                <br />
-                {place.location}
-                {place.tripName && (
-                  <>
-                    <br />
-                    {place.tripName}
-                  </>
-                )} */}
-                <Postcard trip={place.trip} smallText={true} />
-              </Popup>
-            </CircleMarker>
-          ))}
-
-          {dart && (
-            <Marker position={dart.position} icon={dartIcon}>
-              <Popup>
-                <strong>🎯 Random Dart</strong>
-                <br />
-                Latitude: {dart.position[0]}
-                <br />
-                Longitude: {dart.position[1]}
-              </Popup>
-            </Marker>
-          )}
-        </MapContainer>
       </div>
-    </section>
+
+      <div className="absolute inset-x-3 bottom-32 z-[450] sm:inset-x-auto sm:bottom-36 sm:left-6 sm:w-[21rem]">
+        {isPending ? <div className="h-32 animate-pulse rounded-2xl bg-slate-950/70" /> : isError ? <div className="rounded-2xl bg-destructive p-4 text-sm font-semibold text-destructive-foreground">Unable to load your trip pins.</div> : selectedPin ? (
+          <div className="rounded-2xl border border-white/20 bg-slate-950/85 p-4 text-white shadow-2xl backdrop-blur-md"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary-foreground/75"><MapPin className="size-3.5" /> {selectedPin.location ?? "Pinned destination"}</p><h2 className="mt-1 truncate text-xl font-black">{selectedPin.trip?.name ?? selectedPin.name}</h2><p className="mt-1 flex items-center gap-2 text-sm text-white/75"><CalendarDays className="size-4" /> {formatTripDates(selectedPin.trip)}</p><Link to={`/trip?id=${selectedPin.trip?.tripID}`} className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90">View itinerary <Navigation className="size-4" /></Link></div>
+        ) : <div className="rounded-2xl border border-white/20 bg-slate-950/85 p-4 text-white shadow-xl backdrop-blur-md"><h2 className="font-black">Your map is ready.</h2><p className="mt-1 text-sm text-white/75">Add coordinates to a trip or leg to place its first pin.</p><Link to="/trips" className="mt-3 inline-flex text-sm font-bold text-primary-foreground underline">Plan a trip</Link></div>}
+      </div>
+    </div>
   )
 }
