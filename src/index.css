@@ -175,3 +175,18 @@
     @apply font-sans;
   }
 }
+
+.travel-postcard-popup .leaflet-popup-content-wrapper {
+  overflow: hidden;
+  padding: 0;
+  border-radius: 1rem;
+}
+
+.travel-postcard-popup .leaflet-popup-content {
+  width: auto !important;
+  margin: 0;
+}
+
+.travel-postcard-popup .leaflet-popup-tip {
+  background: var(--background);
+}

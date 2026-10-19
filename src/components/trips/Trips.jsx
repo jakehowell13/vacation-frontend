@@ -120,7 +120,7 @@ export const Trips = () => {
                       </div>)}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-black/45" />
-                    <div className="absolute inset-0 grid place-items-center"><div className="text-center text-white drop-shadow-[0_4px_14px_rgb(0_0_0_/_0.55)]"><p className="text-xs font-black uppercase tracking-[0.35em] text-white/80">Postcards from</p><p className="mt-1 text-6xl font-black tracking-[-0.07em] sm:text-8xl">{year}</p><p className="mt-3 text-sm font-bold text-white/90">{isExpanded ? "Hide collection" : `Open ${yearTrips.length} postcard${yearTrips.length === 1 ? "" : "s"}`}</p></div></div>
+                    <div className="absolute inset-0 grid place-items-center"><div className="text-center text-white drop-shadow-[0_4px_14px_rgb(0_0_0_/_0.55)]"><p className="text-lg font-black uppercase tracking-[0.22em] text-white/80 sm:text-xs sm:tracking-[0.35em]">Postcards from</p><p className="mt-0 text-9xl font-black tracking-[-0.1em] sm:mt-1 sm:text-8xl">{year}</p><p className="mt-1 text-xl font-bold text-white/90 sm:mt-3 sm:text-sm">{isExpanded ? "Hide collection" : `Open ${yearTrips.length} postcard${yearTrips.length === 1 ? "" : "s"}`}</p></div></div>
                   </button>
                   {isExpanded && <div className="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{yearTrips.map((trip, index) => <div key={trip.tripID} className="transition-transform duration-300 hover:z-10 hover:scale-[1.03]" style={{ transform: `rotate(${[-2, 1.5, -1, 2][index % 4]}deg)` }}><Postcard trip={trip} index={index} /></div>)}</div>}
                 </section>

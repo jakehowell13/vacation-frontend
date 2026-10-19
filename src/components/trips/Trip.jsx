@@ -46,6 +46,13 @@ const formatTime = (dateString) => {
   }).format(new Date(dateString));
 };
 
+const fallbackHeroThemes = [
+  ["#172554", "#4f46e5", "#ec4899"],
+  ["#083344", "#0f766e", "#38bdf8"],
+  ["#3f1d2e", "#b45309", "#fbbf24"],
+  ["#312e81", "#7c3aed", "#f43f5e"],
+];
+
 const formatTimeRange = (startDateTime, endDateTime) => {
   const start = formatTime(startDateTime);
   const end = formatTime(endDateTime);
@@ -277,6 +284,7 @@ export const Trip = () => {
   }
 
   if (!trip) return null;
+  const heroTheme = fallbackHeroThemes[[...(trip.tripID ?? trip.name ?? "trip")].reduce((total, character) => total + character.charCodeAt(0), 0) % fallbackHeroThemes.length]
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8">
@@ -288,6 +296,19 @@ export const Trip = () => {
             className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] ease-out group-hover:scale-105"
             style={{ backgroundImage: `url(${trip.coverPhotoSasUrl})` }}
           />
+        )}
+
+        {!trip.coverPhotoSasUrl && (
+          <div className="absolute inset-0 overflow-hidden" style={{ background: `linear-gradient(125deg, ${heroTheme[0]}, ${heroTheme[1]} 54%, ${heroTheme[2]})` }}>
+            <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.2)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.2)_1px,transparent_1px)] [background-size:32px_32px]" />
+            <div className="absolute -left-16 -top-20 size-72 rounded-full border-[28px] border-white/15" />
+            <div className="absolute -bottom-28 right-[12%] size-80 rounded-full border-[34px] border-white/10" />
+            <div className="absolute left-[22%] top-[48%] h-px w-[58%] -rotate-[20deg] border-t-2 border-dashed border-white/70" />
+            <div className="absolute left-[20%] top-[46%] size-4 rounded-full border-[3px] border-white bg-white/20 shadow-lg" />
+            <div className="absolute right-[19%] top-[25%] grid size-16 place-items-center rounded-full border border-white/50 bg-white/90 text-2xl font-black shadow-xl" style={{ color: heroTheme[2] }}>{(trip.location || trip.name || "V").trim().charAt(0).toUpperCase()}</div>
+            <p className="absolute left-7 top-6 text-xs font-black uppercase tracking-[0.32em] text-white/70">Travel atlas</p>
+            <p className="absolute bottom-5 right-7 font-[Yesteryear,cursive] text-4xl text-white/35">{trip.location || "Adventure"}</p>
+          </div>
         )}
 
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-black/20" />
