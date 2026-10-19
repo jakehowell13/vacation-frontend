@@ -20,7 +20,7 @@ export const Calendar = () => {
     }
 
   return (
-    <div className="p-6">
+    <div className="-mx-3 p-0 sm:mx-0 sm:p-6">
         <TripCalendar trips={trips} />
     </div>
   )

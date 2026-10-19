@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom"
-import { useEffect, useState } from "react"
 import {
   Home,
   PlaneTakeoff,
@@ -9,28 +8,11 @@ import {
   ChartColumnBig,
   Goal,
   Calendar,
-  UserRound,
   Lightbulb,
 } from "lucide-react"
-import { useAuth } from "@/providers/AuthProvider"
 
 export const Layout = ({ children }) => {
-  const { user } = useAuth()
   const location = useLocation()
-  const [profile, setProfile] = useState(null)
-
-  useEffect(() => {
-    const loadProfile = () => {
-      const storedProfile = localStorage.getItem(`vacation-profile-${user?.id ?? "guest"}`)
-      setProfile(storedProfile ? JSON.parse(storedProfile) : null)
-    }
-
-    loadProfile()
-    window.addEventListener("profile-updated", loadProfile)
-    return () => window.removeEventListener("profile-updated", loadProfile)
-  }, [user?.id])
-
-  const initials = `${profile?.firstName?.[0] ?? ""}${profile?.lastName?.[0] ?? ""}`.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"
 
   const navItems = [
     {
@@ -62,11 +44,6 @@ export const Layout = ({ children }) => {
       to: "/finance",
       label: "Finance",
       icon: ChartColumnBig,
-    },
-    {
-      to: "/profile",
-      label: "Profile",
-      icon: UserRound,
     },
     {
       to: "/vision",
@@ -128,9 +105,6 @@ export const Layout = ({ children }) => {
               Vacation mode enabled
             </div>
           </nav>
-            <Link to="/profile" aria-label="Open profile" className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-primary/25 bg-primary/10 text-sm font-black text-primary shadow-sm transition hover:scale-105 hover:border-primary/50">
-              {profile?.avatar ? <img src={profile.avatar} alt="Your profile" className="size-full object-cover" /> : initials}
-            </Link>
           </div>
         </div>
       </header>

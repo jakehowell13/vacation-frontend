@@ -39,14 +39,22 @@ const formatTripDates = (trip) => {
   return end ? `${start} – ${end}` : start
 }
 
-export const TravelMap = ({ trips = [], isPending, isError }) => {
+const formatPostcardDates = (trip) => {
+  const format = (value) => value ? new Date(value).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "TBD"
+  return trip?.startDate || trip?.endDate ? `${format(trip.startDate)} – ${format(trip.endDate)}` : "Dates TBD"
+}
+
+export const TravelMap = ({ trips = [], nextTrip, isPending, isError }) => {
   const pins = useMemo(() => getMapPins(trips), [trips])
   const [selectedPin, setSelectedPin] = useState(null)
   const [hasSelectedPin, setHasSelectedPin] = useState(false)
+  const nextTripPin = useMemo(() => pins.find((pin) => pin.trip === nextTrip) ?? pins.find((pin) => pin.trip?.name === nextTrip?.name && pin.trip?.startDate === nextTrip?.startDate) ?? null, [nextTrip, pins])
+  const featuredPin = nextTripPin ?? selectedPin
+  const featuredTrip = nextTrip ?? featuredPin?.trip
 
   useEffect(() => {
-    setSelectedPin((current) => pins.find((pin) => pin.id === current?.id) ?? pins[0] ?? null)
-  }, [pins])
+    setSelectedPin((current) => hasSelectedPin ? pins.find((pin) => pin.id === current?.id) ?? nextTripPin ?? pins[0] ?? null : nextTripPin ?? pins[0] ?? null)
+  }, [hasSelectedPin, nextTripPin, pins])
 
   return (
     <div className="relative h-full w-full">
@@ -55,21 +63,22 @@ export const TravelMap = ({ trips = [], isPending, isError }) => {
         <MapFocus pin={selectedPin} shouldFocus={hasSelectedPin} />
         {pins.map((pin) => (
           <CircleMarker key={pin.id} center={pin.position} radius={selectedPin?.id === pin.id ? 12 : 8} eventHandlers={{ click: () => { setSelectedPin(pin); setHasSelectedPin(true) } }} pathOptions={{ color: "white", fillColor: "var(--primary)", fillOpacity: 0.95, weight: selectedPin?.id === pin.id ? 4 : 2 }}>
-            <Popup><strong>{pin.name}</strong>{pin.location && <><br />{pin.location}</>}</Popup>
+            <Popup className="travel-postcard-popup" autoPanPadding={[24, 24]}>
+              <Link to={`/trip?id=${pin.trip?.tripID}`} className="group relative block aspect-[4/3] w-80 overflow-hidden bg-slate-900 text-left shadow-lg">
+                <div className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={pin.trip?.coverPhotoSasUrl ? { backgroundImage: `url(${pin.trip.coverPhotoSasUrl})` } : { background: "linear-gradient(135deg, #172554, #7c3aed 55%, #ec4899)" }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5" />
+                <div className="absolute inset-0 border-[10px] border-white/95 shadow-[inset_0_0_0_1px_rgb(255_255_255_/_0.6)]" />
+                <div className="absolute right-4 top-4 w-28 border border-white/70 bg-white/90 p-2 text-center text-[0.62rem] font-black tracking-[0.06em] text-foreground shadow-sm backdrop-blur-sm">{formatPostcardDates(pin.trip)}</div>
+                <div className="absolute bottom-5 left-5 right-5 text-white drop-shadow-[0_2px_8px_rgb(0_0_0_/_0.7)]"><p className="font-[Yesteryear,cursive] text-4xl leading-none">{pin.trip?.location ?? pin.location ?? "Location TBD"}</p><h2 className="mt-2 text-base font-semibold leading-tight text-white/90">{pin.trip?.name ?? pin.name}</h2></div>
+              </Link>
+            </Popup>
           </CircleMarker>
         ))}
       </MapContainer>
 
-      <div className="absolute right-3 top-28 z-[450] hidden w-64 rounded-2xl border border-white/20 bg-slate-950/80 p-3 text-white shadow-xl backdrop-blur-md lg:block">
-        <p className="px-2 pb-2 text-xs font-bold uppercase tracking-[0.18em] text-white/65">Map pins · {pins.length}</p>
-        <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
-          {pins.map((pin) => <button key={pin.id} type="button" onClick={() => { setSelectedPin(pin); setHasSelectedPin(true) }} className={`w-full rounded-xl px-3 py-2 text-left transition ${selectedPin?.id === pin.id ? "bg-primary text-primary-foreground" : "hover:bg-white/10"}`}><p className="truncate text-sm font-bold">{pin.name}</p><p className={`truncate text-xs ${selectedPin?.id === pin.id ? "text-primary-foreground/80" : "text-white/60"}`}>{pin.location ?? pin.trip?.name}</p></button>)}
-        </div>
-      </div>
-
-      <div className="absolute inset-x-3 bottom-32 z-[450] sm:inset-x-auto sm:bottom-36 sm:left-6 sm:w-[21rem]">
-        {isPending ? <div className="h-32 animate-pulse rounded-2xl bg-slate-950/70" /> : isError ? <div className="rounded-2xl bg-destructive p-4 text-sm font-semibold text-destructive-foreground">Unable to load your trip pins.</div> : selectedPin ? (
-          <div className="rounded-2xl border border-white/20 bg-slate-950/85 p-4 text-white shadow-2xl backdrop-blur-md"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary-foreground/75"><MapPin className="size-3.5" /> {selectedPin.location ?? "Pinned destination"}</p><h2 className="mt-1 truncate text-xl font-black">{selectedPin.trip?.name ?? selectedPin.name}</h2><p className="mt-1 flex items-center gap-2 text-sm text-white/75"><CalendarDays className="size-4" /> {formatTripDates(selectedPin.trip)}</p><Link to={`/trip?id=${selectedPin.trip?.tripID}`} className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90">View itinerary <Navigation className="size-4" /></Link></div>
+      <div className="absolute inset-x-3 bottom-32 z-[450] hidden sm:inset-x-auto sm:bottom-36 sm:left-6 sm:block sm:w-[21rem]">
+        {isPending ? <div className="h-32 animate-pulse rounded-2xl bg-slate-950/70" /> : isError ? <div className="rounded-2xl bg-destructive p-4 text-sm font-semibold text-destructive-foreground">Unable to load your trip pins.</div> : featuredTrip ? (
+          <div className="rounded-2xl border border-white/20 bg-slate-950/85 p-4 text-white shadow-2xl backdrop-blur-md"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary-foreground/75"><MapPin className="size-3.5" /> {featuredTrip.location ?? featuredPin?.location ?? "Pinned destination"}</p><h2 className="mt-1 truncate text-xl font-black">{featuredTrip.name ?? featuredPin?.name}</h2><p className="mt-1 flex items-center gap-2 text-sm text-white/75"><CalendarDays className="size-4" /> {formatTripDates(featuredTrip)}</p><Link to={`/trip?id=${featuredTrip.tripID ?? featuredTrip.id}`} className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90">View itinerary <Navigation className="size-4" /></Link></div>
         ) : <div className="rounded-2xl border border-white/20 bg-slate-950/85 p-4 text-white shadow-xl backdrop-blur-md"><h2 className="font-black">Your map is ready.</h2><p className="mt-1 text-sm text-white/75">Add coordinates to a trip or leg to place its first pin.</p><Link to="/trips" className="mt-3 inline-flex text-sm font-bold text-primary-foreground underline">Plan a trip</Link></div>}
       </div>
     </div>
