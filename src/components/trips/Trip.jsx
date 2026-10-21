@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useGetTrip } from "@/hooks/trips/useGetTrip";
@@ -13,18 +14,14 @@ import {
   Route,
   CheckCircle2,
   Circle,
+  Trash2,
 } from "lucide-react";
 import { UpsertTrip } from "./UpsertTrip";
 import { UpsertTripCoverImage } from "./UpsertTripCoverImage";
 import { UpsertItineraryItem } from "../itineraryItem/UpsertItineraryItem";
 import { UpsertToDo } from "../to-do/UpsertToDo";
 import { UpsertLeg } from "../legs/UpsertLeg";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { deleteTrip } from "@/services/trip-service";
 
 
 const formatDate = (dateString) => {
@@ -45,13 +42,6 @@ const formatTime = (dateString) => {
     minute: "2-digit",
   }).format(new Date(dateString));
 };
-
-const fallbackHeroThemes = [
-  ["#172554", "#4f46e5", "#ec4899"],
-  ["#083344", "#0f766e", "#38bdf8"],
-  ["#3f1d2e", "#b45309", "#fbbf24"],
-  ["#312e81", "#7c3aed", "#f43f5e"],
-];
 
 const formatTimeRange = (startDateTime, endDateTime) => {
   const start = formatTime(startDateTime);
@@ -253,6 +243,9 @@ const ToDoList = ({ toDos = [], trip, refetch }) => {
 export const Trip = () => {
   const { searchParams } = useSearchParamManager();
   const id = searchParams.get("id");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const navigate = useNavigate();
 
   const { isPending, isError, data: trip, error, refetch } = useGetTrip(id);
   const legs = trip?.legs ?? [];
@@ -284,71 +277,64 @@ export const Trip = () => {
   }
 
   if (!trip) return null;
-  const heroTheme = fallbackHeroThemes[[...(trip.tripID ?? trip.name ?? "trip")].reduce((total, character) => total + character.charCodeAt(0), 0) % fallbackHeroThemes.length]
-
+  const handleDeleteTrip = async () => {
+    if (!window.confirm(`Delete “${trip.name}”? This permanently removes the trip and its cover photo.`)) return;
+    setIsDeleting(true);
+    setDeleteError("");
+    try {
+      await deleteTrip({ params: { id: trip.tripID } });
+      navigate("/trips", { replace: true });
+    } catch {
+      setDeleteError("Unable to delete this trip. Please try again.");
+      setIsDeleting(false);
+    }
+  };
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8">
 
-      {/* HERO */}
-      <section className="group relative min-h-[260px] overflow-hidden rounded-xl border border-primary/15 shadow-sm shadow-primary/10">
-        {trip.coverPhotoSasUrl && (
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] ease-out group-hover:scale-105"
-            style={{ backgroundImage: `url(${trip.coverPhotoSasUrl})` }}
-          />
-        )}
-
-        {!trip.coverPhotoSasUrl && (
-          <div className="absolute inset-0 overflow-hidden" style={{ background: `linear-gradient(125deg, ${heroTheme[0]}, ${heroTheme[1]} 54%, ${heroTheme[2]})` }}>
-            <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.2)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.2)_1px,transparent_1px)] [background-size:32px_32px]" />
-            <div className="absolute -left-16 -top-20 size-72 rounded-full border-[28px] border-white/15" />
-            <div className="absolute -bottom-28 right-[12%] size-80 rounded-full border-[34px] border-white/10" />
-            <div className="absolute left-[22%] top-[48%] h-px w-[58%] -rotate-[20deg] border-t-2 border-dashed border-white/70" />
-            <div className="absolute left-[20%] top-[46%] size-4 rounded-full border-[3px] border-white bg-white/20 shadow-lg" />
-            <div className="absolute right-[19%] top-[25%] grid size-16 place-items-center rounded-full border border-white/50 bg-white/90 text-2xl font-black shadow-xl" style={{ color: heroTheme[2] }}>{(trip.location || trip.name || "V").trim().charAt(0).toUpperCase()}</div>
-            <p className="absolute left-7 top-6 text-xs font-black uppercase tracking-[0.32em] text-white/70">Travel atlas</p>
-            <p className="absolute bottom-5 right-7 font-[Yesteryear,cursive] text-4xl text-white/35">{trip.location || "Adventure"}</p>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_240px] xl:items-center">
+      {/* BOARDING PASS HERO */}
+      <section className="relative mx-auto w-full max-w-4xl py-3 sm:py-5 xl:max-w-none">
+        <div className="overflow-hidden rounded-[1.4rem] border border-sky-200 bg-sky-50 shadow-lg shadow-sky-950/10 md:mr-[16%]">
+          <div className="bg-sky-500 px-5 py-3 text-white sm:px-6"><p className="flex items-center gap-2 text-base font-black tracking-[0.12em] sm:text-xl">BOARDING PASS <span aria-hidden="true">✈</span></p></div>
+          <div className="grid grid-cols-[minmax(0,1fr)_74px]">
+            <div className="p-5 sm:p-6">
+              <p className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-sky-600">Passenger</p>
+              <h1 className="mt-1.5 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">{trip.name}</h1>
+              <p className="mt-3 flex items-center gap-2 text-sm font-medium text-slate-500"><MapPin className="size-4 text-sky-500" />{trip.location || "Location TBD"}</p>
+              <div className="mt-5 grid grid-cols-2 gap-5 border-t border-dashed border-sky-200 pt-4 text-sm">
+                <div><p className="text-[0.6rem] font-black uppercase tracking-[0.15em] text-sky-600">Departure</p><p className="mt-1 font-bold text-slate-800">{formatDate(trip.startDate)}</p></div>
+                <div><p className="text-[0.6rem] font-black uppercase tracking-[0.15em] text-sky-600">Return</p><p className="mt-1 font-bold text-slate-800">{formatDate(trip.endDate)}</p></div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-sky-200 pt-4">
+                <UpsertTripCoverImage trip={trip} />
+                <UpsertTrip trip={trip} refetch={refetch} triggerHtml={<div className="rounded-full border border-sky-200 bg-white px-4 py-2 text-sm font-bold text-sky-950 shadow-sm transition hover:bg-sky-50">Edit trip</div>} />
+                <button type="button" onClick={handleDeleteTrip} disabled={isDeleting} className="inline-flex items-center gap-2 rounded-full border border-destructive/25 bg-destructive/5 px-4 py-2 text-sm font-bold text-destructive transition hover:bg-destructive/10 disabled:opacity-60"><Trash2 className="size-4" />{isDeleting ? "Deleting…" : "Delete"}</button>
+              </div>
+              {deleteError && <p className="mt-3 text-sm font-medium text-destructive">{deleteError}</p>}
+            </div>
+            <div className="flex flex-col items-center justify-between border-l-2 border-dashed border-sky-300 px-2 py-5 text-center">
+              <div className="h-20 w-9 bg-[repeating-linear-gradient(90deg,#075985_0_2px,transparent_2px_5px,#075985_5px_7px,transparent_7px_10px)]" />
+              <p className="text-[0.58rem] font-black uppercase tracking-[0.14em] text-sky-600">Trip<br />{String(trip.tripID ?? "new").slice(-6)}</p>
+              <p className="text-[0.58rem] font-black uppercase tracking-[0.14em] text-sky-600">Seat<br />Open</p>
+            </div>
           </div>
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-black/20" />
-
-        <div className="relative flex h-full flex-col justify-between gap-6 p-6 lg:flex-row lg:items-end">
-          <div className="text-white">
-            <h1 className="text-4xl font-semibold">{trip.name}</h1>
-            <p className="mt-2 flex items-center gap-2 text-white/80">
-              <MapPin className="size-4" />
-              {trip.location}
-            </p>
-          </div>
-
-          <div className="flex gap-2">
-            <UpsertTripCoverImage trip={trip} />
-            <UpsertTrip trip={trip} refetch={refetch} triggerHtml={<div className="bg-white px-3 py-1.5 text-black rounded-md">Edit</div>} />
+        </div>
+        <div className="relative mx-auto mt-[-10px] w-[76%] -rotate-2 overflow-hidden border-4 border-orange-300 bg-orange-100 shadow-xl shadow-sky-950/25 sm:w-[58%] md:absolute md:right-0 md:top-1/2 md:mt-0 md:w-[38%] md:-translate-y-1/2 md:rotate-[3deg]">
+          <div className="aspect-[4/3]">
+            {trip.coverPhotoSasUrl ? <img src={trip.coverPhotoSasUrl} alt={`Postcard from ${trip.location || trip.name}`} className="size-full object-cover" /> : <div className="size-full bg-gradient-to-br from-orange-300 via-rose-300 to-sky-400" />}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-sky-950/85 to-transparent px-5 pb-4 pt-16"><p className="font-[Yesteryear,cursive] text-3xl leading-none text-white sm:text-4xl">Greetings from<br />{trip.location || "your adventure"}</p></div>
           </div>
         </div>
       </section>
 
-      {/* SUMMARY */}
-      <Accordion
-      type="single"
-      collapsible
-      defaultValue="shipping"
-      className="w-full"
-    >
-      <AccordionItem value="shipping" className="border border-primary/15 rounded-lg min-w-full">
-        <AccordionTrigger>Summary Items</AccordionTrigger>
-        <AccordionContent className="w-full grid gap-3 sm:grid-cols-2 lg:grid-cols-6 h-max">
-            <TripSummaryItem icon={CalendarDays} label="Starts" value={formatDate(trip.startDate)} />
-            <TripSummaryItem icon={CalendarDays} label="Ends" value={formatDate(trip.endDate)} />
-            <TripSummaryItem icon={CircleDollarSign} label="Budget" value={trip.estimatedBudget ? `$${trip.estimatedBudget.toLocaleString()}` : "Budget TBD"} />
-            <TripSummaryItem icon={CircleDollarSign} label="Cost" value={trip.cost ? `$${trip.cost.toLocaleString()}` : "Cost TBD"} />
-            <TripSummaryItem icon={Route} label="Itinerary" value={`${overallItineraryItems.length} items`} />
-            <TripSummaryItem icon={Route} label="Legs" value={`${legs.length} legs`} />
-        </AccordionContent>
-      </AccordionItem>
-      
-    </Accordion>
+      <aside className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1" aria-label="Trip summary">
+        <TripSummaryItem icon={CircleDollarSign} label="Budget" value={trip.estimatedBudget ? `$${trip.estimatedBudget.toLocaleString()}` : "Budget TBD"} />
+        <TripSummaryItem icon={CircleDollarSign} label="Cost" value={trip.cost ? `$${trip.cost.toLocaleString()}` : "Cost TBD"} />
+        <TripSummaryItem icon={Route} label="Itinerary" value={`${overallItineraryItems.length} items`} />
+        <TripSummaryItem icon={Route} label="Legs" value={`${legs.length} legs`} />
+      </aside>
+      </div>
       
 
       {/* TIMELINE + TODOS */}

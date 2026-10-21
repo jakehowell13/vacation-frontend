@@ -1,46 +1,71 @@
 import { useEffect, useMemo, useState } from "react"
 import { Camera, Check, Mail } from "lucide-react"
 import { useAuth } from "@/providers/AuthProvider"
+import { supabase } from "@/lib/supabase"
 
 const emptyProfile = { firstName: "", lastName: "", avatar: "" }
 
 export const Profile = () => {
   const { user } = useAuth()
-  const storageKey = `vacation-profile-${user?.id ?? "guest"}`
   const [profile, setProfile] = useState(emptyProfile)
   const [saved, setSaved] = useState(false)
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    const metadata = user?.user_metadata ?? {}
-    const storedProfile = JSON.parse(localStorage.getItem(storageKey) ?? "null")
-    const fullName = storedProfile?.fullName ?? metadata.full_name ?? metadata.name ?? ""
-    const [firstName = "", ...lastNameParts] = fullName.trim().split(/\s+/).filter(Boolean)
-    setProfile({
-      firstName: storedProfile?.firstName ?? firstName,
-      lastName: storedProfile?.lastName ?? lastNameParts.join(" "),
-      avatar: storedProfile?.avatar ?? "",
-    })
-  }, [storageKey, user])
+    if (!user) return
+    let active = true
+    const loadProfile = async () => {
+      const { data, error: loadError } = await supabase.from("profiles").select("first_name, last_name, avatar_path").eq("id", user.id).maybeSingle()
+      if (!active || loadError) return
+      const metadata = user.user_metadata ?? {}
+      const fullName = metadata.full_name ?? metadata.name ?? ""
+      const [metadataFirstName = "", ...metadataLastName] = fullName.trim().split(/\s+/).filter(Boolean)
+      const avatar = data?.avatar_path ? supabase.storage.from("profile-avatars").getPublicUrl(data.avatar_path).data.publicUrl : ""
+      setProfile({ firstName: data?.first_name ?? metadataFirstName, lastName: data?.last_name ?? metadataLastName.join(" "), avatar })
+    }
+    loadProfile()
+    return () => { active = false }
+  }, [user])
 
   const displayName = `${profile.firstName} ${profile.lastName}`.trim()
   const initials = useMemo(() => `${profile.firstName[0] ?? ""}${profile.lastName[0] ?? ""}`.toUpperCase() || "VC", [profile.firstName, profile.lastName])
 
   const updateProfile = (field, value) => {
     setSaved(false)
+    setError("")
     setProfile((current) => ({ ...current, [field]: value }))
   }
 
   const uploadAvatar = (event) => {
     const file = event.target.files?.[0]
     if (!file) return
+    setAvatarFile(file)
     const reader = new FileReader()
     reader.onload = () => updateProfile("avatar", String(reader.result))
     reader.readAsDataURL(file)
   }
 
-  const saveProfile = (event) => {
+  const saveProfile = async (event) => {
     event.preventDefault()
-    localStorage.setItem(storageKey, JSON.stringify(profile))
+    if (!user) return
+    setError("")
+    let avatarPath
+    let avatar = profile.avatar
+    if (avatarFile) {
+      const extension = avatarFile.name.split(".").pop()?.replace(/[^a-z0-9]/gi, "") || "jpg"
+      avatarPath = `${user.id}/avatar.${extension}`
+      const { error: uploadError } = await supabase.storage.from("profile-avatars").upload(avatarPath, avatarFile, { upsert: true, contentType: avatarFile.type })
+      if (uploadError) { setError(`Avatar upload failed: ${uploadError.message}`); return }
+      avatar = supabase.storage.from("profile-avatars").getPublicUrl(avatarPath).data.publicUrl
+    }
+    const displayName = `${profile.firstName} ${profile.lastName}`.trim()
+    const payload = { id: user.id, first_name: profile.firstName.trim(), last_name: profile.lastName.trim(), display_name: displayName }
+    if (avatarPath) payload.avatar_path = avatarPath
+    const { error: saveError } = await supabase.from("profiles").upsert(payload, { onConflict: "id" })
+    if (saveError) { setError(`Profile save failed: ${saveError.message}`); return }
+    setProfile((current) => ({ ...current, avatar }))
+    setAvatarFile(null)
     window.dispatchEvent(new Event("profile-updated"))
     setSaved(true)
   }
@@ -73,7 +98,7 @@ export const Profile = () => {
             <label className="grid gap-2 text-sm font-bold sm:col-span-2">Email <span className="sr-only">(from your account)</span><span className="relative"><Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><input value={user?.email ?? ""} readOnly className="h-11 w-full rounded-xl border border-input bg-muted/50 py-2 pl-10 pr-3 font-normal text-muted-foreground outline-none" /></span><span className="text-xs font-normal text-muted-foreground">Connected to your Supabase account</span></label>
           </div>
 
-          <div className="mt-8 flex items-center justify-between gap-4 border-t border-primary/10 pt-6"><p className="text-sm text-muted-foreground">{saved ? "Profile saved on this device." : ""}</p><button type="submit" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"><Check className="size-4" /> Save profile</button></div>
+          <div className="mt-8 flex items-center justify-between gap-4 border-t border-primary/10 pt-6"><p className="text-sm text-muted-foreground">{error || (saved ? "Profile saved to your account." : "")}</p><button type="submit" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"><Check className="size-4" /> Save profile</button></div>
         </form>
       </div>
     </div>

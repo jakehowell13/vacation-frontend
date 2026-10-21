@@ -57,6 +57,17 @@ export const getTripById = async (queryConfig) => {
     return await callExternalApi({ config });
 }
 
+export const deleteTrip = async (queryConfig) => {
+  const authorization = await authHeaders();
+  return await callExternalApi({
+    config: {
+      url: `${apiServerUrl}/trip/${queryConfig.params.id}`,
+      method: "DELETE",
+      headers: authorization,
+    },
+  });
+}
+
 export const uploadTripCoverPhoto = async (queryConfig) => {
   const authorization = await authHeaders();
   const formData = new FormData();
