@@ -1,38 +1,34 @@
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/providers/AuthProvider"
-
-const getStoredProfile = (user) => {
-  try {
-    const stored = JSON.parse(localStorage.getItem(`vacation-profile-${user?.id ?? "guest"}`) ?? "null")
-    const name = stored?.fullName ?? user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? ""
-    const [metadataFirstName = "", ...metadataLastName] = name.trim().split(/\s+/).filter(Boolean)
-    return {
-      firstName: stored?.firstName ?? metadataFirstName,
-      lastName: stored?.lastName ?? metadataLastName.join(" "),
-    }
-  } catch {
-    return { firstName: "", lastName: "" }
-  }
-}
+import { supabase } from "@/lib/supabase"
 
 export const ProfileCompletionGate = ({ children }) => {
   const { user } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
-  const [profile, setProfile] = useState(() => getStoredProfile(user))
+  const [profile, setProfile] = useState(null)
+  const [profileLoadFailed, setProfileLoadFailed] = useState(false)
 
   useEffect(() => {
-    const refresh = () => setProfile(getStoredProfile(user))
+    if (!user) { setProfile(null); setProfileLoadFailed(false); return }
+    let active = true
+    const refresh = async () => {
+      const { data, error } = await supabase.from("profiles").select("first_name, last_name").eq("id", user.id).maybeSingle()
+      if (!active) return
+      setProfileLoadFailed(Boolean(error))
+      if (!error) setProfile(data ?? { first_name: "", last_name: "" })
+    }
     refresh()
     window.addEventListener("profile-updated", refresh)
-    return () => window.removeEventListener("profile-updated", refresh)
+    return () => { active = false; window.removeEventListener("profile-updated", refresh) }
   }, [user?.id])
 
   useEffect(() => {
-    const complete = Boolean(profile.firstName?.trim() && profile.lastName?.trim())
+    if (!profile || profileLoadFailed) return
+    const complete = Boolean(profile.first_name?.trim() && profile.last_name?.trim())
     if (user && !complete && location.pathname !== "/profile") navigate("/profile", { replace: true })
-  }, [location.pathname, navigate, profile, user])
+  }, [location.pathname, navigate, profile, profileLoadFailed, user])
 
   return children
 }

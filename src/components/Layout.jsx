@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import {
   Home,
@@ -10,9 +11,25 @@ import {
   Calendar,
   Lightbulb,
 } from "lucide-react"
+import { useAuth } from "@/providers/AuthProvider"
+import { supabase } from "@/lib/supabase"
 
 export const Layout = ({ children }) => {
   const location = useLocation()
+  const { user } = useAuth()
+  const [avatarUrl, setAvatarUrl] = useState("")
+
+  useEffect(() => {
+    if (!user) { setAvatarUrl(""); return }
+    let active = true
+    const loadAvatar = async () => {
+      const { data } = await supabase.from("profiles").select("avatar_path").eq("id", user.id).maybeSingle()
+      if (active) setAvatarUrl(data?.avatar_path ? supabase.storage.from("profile-avatars").getPublicUrl(data.avatar_path).data.publicUrl : "")
+    }
+    loadAvatar()
+    window.addEventListener("profile-updated", loadAvatar)
+    return () => { active = false; window.removeEventListener("profile-updated", loadAvatar) }
+  }, [user?.id])
 
   const navItems = [
     {
@@ -100,10 +117,9 @@ export const Layout = ({ children }) => {
               )
             })}
 
-            <div className="ml-2 hidden items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-2 text-xs font-bold text-primary lg:flex">
-              <Sparkles className="size-3.5" />
-              Vacation mode enabled
-            </div>
+            <Link to="/profile" aria-label="Open profile" className="ml-2 hidden size-10 items-center justify-center overflow-hidden rounded-full border-2 border-primary/20 bg-primary/10 text-xs font-black text-primary transition hover:border-primary lg:flex">
+              {avatarUrl ? <img src={avatarUrl} alt="Your profile" className="size-full object-cover" /> : (user?.email?.[0] ?? "V").toUpperCase()}
+            </Link>
           </nav>
           </div>
         </div>
