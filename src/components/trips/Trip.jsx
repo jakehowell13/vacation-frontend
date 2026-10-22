@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Circle,
   Trash2,
+  Printer,
 } from "lucide-react";
 import { UpsertTrip } from "./UpsertTrip";
 import { UpsertTripCoverImage } from "./UpsertTripCoverImage";
@@ -95,6 +96,21 @@ const TripSummaryItem = ({ icon: Icon, label, value }) => (
       <p className="truncate text-sm font-semibold">{value}</p>
     </div>
   </div>
+);
+
+const PrintableItineraryItem = ({ item }) => (
+  <li className="trip-print-item">
+    <div>
+      <p className="trip-print-item-type">{item.itineraryTypeName ?? "Itinerary item"}</p>
+      <h4>{item.name || "Untitled item"}</h4>
+      {item.description && <p>{item.description}</p>}
+      {item.externalLink && <p className="trip-print-link">{item.externalLink}</p>}
+    </div>
+    <div className="trip-print-item-details">
+      <p>{formatTimeRange(item.startDateTime, item.endDateTime)}</p>
+      {item.cost != null && <p>${Number(item.cost).toLocaleString()}</p>}
+    </div>
+  </li>
 );
 
 const ItineraryTimeline = ({ items, showLegCallout = false, emptyMessage, trip, refetch }) => {
@@ -289,41 +305,56 @@ export const Trip = () => {
       setIsDeleting(false);
     }
   };
+  const printTrip = () => {
+    const printableMarkup = document.querySelector(".trip-print-sheet")?.innerHTML;
+    const printWindow = window.open("", "trip-print");
+    if (!printWindow || !printableMarkup) { setDeleteError("Unable to open the print view. Please allow pop-ups and try again."); return; }
+    printWindow.document.write(`<!doctype html><html><head><title>${trip.name} itinerary</title><style>
+      @page { margin: 12mm; } body { color:#111827; font-family:Arial,sans-serif; font-size:10pt; } h1 { margin:0; font-size:24pt; } h2 { margin:22px 0 8px; border-bottom:1px solid #cbd5e1; padding-bottom:5px; font-size:15pt; } h3 { margin:16px 0 5px; font-size:12pt; }
+      .trip-print-meta { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; padding:12px; background:#eff6ff; } .trip-print-meta p { margin:0; } .trip-print-label,.trip-print-item-type { color:#0369a1; font-size:8pt; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+      .trip-print-list { list-style:none; margin:0; padding:0; } .trip-print-item { display:flex; justify-content:space-between; gap:20px; break-inside:avoid; border-bottom:1px solid #e2e8f0; padding:9px 0; } .trip-print-item h4,.trip-print-item p { margin:2px 0; } .trip-print-item h4 { font-size:11pt; } .trip-print-item-details { flex:0 0 145px; color:#475569; text-align:right; } .trip-print-link { color:#0369a1; overflow-wrap:anywhere; } .trip-print-empty { color:#64748b; font-style:italic; }
+    </style></head><body>${printableMarkup}</body></html>`);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.onafterprint = () => printWindow.close();
+    window.setTimeout(() => printWindow.print(), 150);
+  };
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8">
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_240px] xl:items-center">
       {/* BOARDING PASS HERO */}
       <section className="relative mx-auto w-full max-w-4xl py-3 sm:py-5 xl:max-w-none">
-        <div className="overflow-hidden rounded-[1.4rem] border border-sky-200 bg-sky-50 shadow-lg shadow-sky-950/10 md:mr-[16%]">
-          <div className="bg-sky-500 px-5 py-3 text-white sm:px-6"><p className="flex items-center gap-2 text-base font-black tracking-[0.12em] sm:text-xl">BOARDING PASS <span aria-hidden="true">✈</span></p></div>
+        <div className="overflow-hidden rounded-[1.4rem] border border-primary/25 bg-primary/5 shadow-lg shadow-primary/10 md:mr-[6%]">
+          <div className="bg-primary px-5 py-3 text-primary-foreground sm:px-6"><p className="flex items-center gap-2 text-base font-black tracking-[0.12em] sm:text-xl">BOARDING PASS <span aria-hidden="true">✈</span></p></div>
           <div className="grid grid-cols-[minmax(0,1fr)_74px]">
             <div className="p-5 sm:p-6">
-              <p className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-sky-600">Passenger</p>
+              <p className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-primary">Passenger</p>
               <h1 className="mt-1.5 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">{trip.name}</h1>
-              <p className="mt-3 flex items-center gap-2 text-sm font-medium text-slate-500"><MapPin className="size-4 text-sky-500" />{trip.location || "Location TBD"}</p>
-              <div className="mt-5 grid grid-cols-2 gap-5 border-t border-dashed border-sky-200 pt-4 text-sm">
-                <div><p className="text-[0.6rem] font-black uppercase tracking-[0.15em] text-sky-600">Departure</p><p className="mt-1 font-bold text-slate-800">{formatDate(trip.startDate)}</p></div>
-                <div><p className="text-[0.6rem] font-black uppercase tracking-[0.15em] text-sky-600">Return</p><p className="mt-1 font-bold text-slate-800">{formatDate(trip.endDate)}</p></div>
+              <p className="mt-3 flex items-center gap-2 text-sm font-medium text-muted-foreground"><MapPin className="size-4 text-primary" />{trip.location || "Location TBD"}</p>
+              <div className="mt-5 grid grid-cols-2 gap-5 border-t border-dashed border-primary/25 pt-4 text-sm">
+                <div><p className="text-[0.6rem] font-black uppercase tracking-[0.15em] text-primary">Departure</p><p className="mt-1 font-bold text-foreground">{formatDate(trip.startDate)}</p></div>
+                <div><p className="text-[0.6rem] font-black uppercase tracking-[0.15em] text-primary">Return</p><p className="mt-1 font-bold text-foreground">{formatDate(trip.endDate)}</p></div>
               </div>
-              <div className="mt-4 flex flex-wrap gap-2 border-t border-sky-200 pt-4">
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-primary/20 pt-4">
                 <UpsertTripCoverImage trip={trip} />
-                <UpsertTrip trip={trip} refetch={refetch} triggerHtml={<div className="rounded-full border border-sky-200 bg-white px-4 py-2 text-sm font-bold text-sky-950 shadow-sm transition hover:bg-sky-50">Edit trip</div>} />
+                <UpsertTrip trip={trip} refetch={refetch} triggerHtml={<div className="rounded-full border border-primary/20 bg-background px-4 py-2 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/5">Edit trip</div>} />
+                <button type="button" onClick={printTrip} className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background px-4 py-2 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/5"><Printer className="size-4" />Print</button>
                 <button type="button" onClick={handleDeleteTrip} disabled={isDeleting} className="inline-flex items-center gap-2 rounded-full border border-destructive/25 bg-destructive/5 px-4 py-2 text-sm font-bold text-destructive transition hover:bg-destructive/10 disabled:opacity-60"><Trash2 className="size-4" />{isDeleting ? "Deleting…" : "Delete"}</button>
               </div>
               {deleteError && <p className="mt-3 text-sm font-medium text-destructive">{deleteError}</p>}
             </div>
-            <div className="flex flex-col items-center justify-between border-l-2 border-dashed border-sky-300 px-2 py-5 text-center">
-              <div className="h-20 w-9 bg-[repeating-linear-gradient(90deg,#075985_0_2px,transparent_2px_5px,#075985_5px_7px,transparent_7px_10px)]" />
-              <p className="text-[0.58rem] font-black uppercase tracking-[0.14em] text-sky-600">Trip<br />{String(trip.tripID ?? "new").slice(-6)}</p>
-              <p className="text-[0.58rem] font-black uppercase tracking-[0.14em] text-sky-600">Seat<br />Open</p>
+            <div className="flex flex-col items-center justify-between border-l-2 border-dashed border-primary/25 px-2 py-5 text-center">
+              <div className="h-20 w-9 bg-[repeating-linear-gradient(90deg,#9d174d_0_2px,transparent_2px_5px,#9d174d_5px_7px,transparent_7px_10px)]" />
+              <p className="text-[0.58rem] font-black uppercase tracking-[0.14em] text-primary">Trip<br />{String(trip.tripID ?? "new").slice(-6)}</p>
+              <p className="text-[0.58rem] font-black uppercase tracking-[0.14em] text-primary">Seat<br />Open</p>
             </div>
           </div>
         </div>
-        <div className="relative mx-auto mt-[-10px] w-[76%] -rotate-2 overflow-hidden border-4 border-orange-300 bg-orange-100 shadow-xl shadow-sky-950/25 sm:w-[58%] md:absolute md:right-0 md:top-1/2 md:mt-0 md:w-[38%] md:-translate-y-1/2 md:rotate-[3deg]">
+        <div className="relative mx-auto mt-[-10px] w-[76%] -rotate-2 overflow-hidden border-4 border-primary/25 bg-background shadow-xl shadow-primary/25 sm:w-[58%] md:absolute md:right-0 md:top-1/2 md:mt-0 md:w-[38%] md:-translate-y-1/2 md:rotate-[3deg]">
           <div className="aspect-[4/3]">
             {trip.coverPhotoSasUrl ? <img src={trip.coverPhotoSasUrl} alt={`Postcard from ${trip.location || trip.name}`} className="size-full object-cover" /> : <div className="size-full bg-gradient-to-br from-orange-300 via-rose-300 to-sky-400" />}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-sky-950/85 to-transparent px-5 pb-4 pt-16"><p className="font-[Yesteryear,cursive] text-3xl leading-none text-white sm:text-4xl">Greetings from<br />{trip.location || "your adventure"}</p></div>
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent px-5 pb-4 pt-16"><p className="font-[Yesteryear,cursive] text-3xl leading-none text-white sm:text-4xl">Greetings from<br />{trip.location || "your adventure"}</p></div>
           </div>
         </div>
       </section>
@@ -335,7 +366,24 @@ export const Trip = () => {
         <TripSummaryItem icon={Route} label="Legs" value={`${legs.length} legs`} />
       </aside>
       </div>
-      
+
+      <style>{`
+        .trip-print-sheet { display: none; }
+        @media print {
+          @page { margin: 12mm; }
+          body * { visibility: hidden; }
+          .trip-print-sheet, .trip-print-sheet * { visibility: visible; }
+          .trip-print-sheet { display: block !important; position: absolute; inset: 0; width: 100%; color: #111827; font-family: Arial, sans-serif; font-size: 10pt; }
+          .trip-print-sheet h1 { margin: 0; font-size: 24pt; } .trip-print-sheet h2 { margin: 22px 0 8px; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px; font-size: 15pt; } .trip-print-sheet h3 { margin: 16px 0 5px; font-size: 12pt; }
+          .trip-print-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; padding: 12px; background: #eff6ff; } .trip-print-meta p { margin: 0; } .trip-print-label, .trip-print-item-type { color: #0369a1; font-size: 8pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+          .trip-print-list { list-style: none; margin: 0; padding: 0; } .trip-print-item { display: flex; justify-content: space-between; gap: 20px; break-inside: avoid; border-bottom: 1px solid #e2e8f0; padding: 9px 0; } .trip-print-item h4, .trip-print-item p { margin: 2px 0; } .trip-print-item h4 { font-size: 11pt; }
+          .trip-print-item-details { flex: 0 0 145px; color: #475569; text-align: right; } .trip-print-link { color: #0369a1; overflow-wrap: anywhere; } .trip-print-leg { break-inside: avoid; } .trip-print-empty { color: #64748b; font-style: italic; }
+        }
+      `}</style>
+      <article className="trip-print-sheet">
+        <header><p className="trip-print-label">Vacation planner · trip details</p><h1>{trip.name}</h1><p>{trip.location || "Location TBD"}</p><div className="trip-print-meta"><div><p className="trip-print-label">Starts</p><p>{formatDate(trip.startDate)}</p></div><div><p className="trip-print-label">Ends</p><p>{formatDate(trip.endDate)}</p></div><div><p className="trip-print-label">Budget</p><p>{trip.estimatedBudget ? `$${trip.estimatedBudget.toLocaleString()}` : "TBD"}</p></div><div><p className="trip-print-label">Total cost</p><p>{trip.cost ? `$${Number(trip.cost).toLocaleString()}` : "$0"}</p></div></div></header>
+        <section><h2>Itinerary items</h2>{overallItineraryItems.length ? <ul className="trip-print-list">{getSortedItineraryItems(overallItineraryItems).map((item) => <PrintableItineraryItem key={item.itineraryItemID} item={item} />)}</ul> : <p className="trip-print-empty">No itinerary items yet.</p>}</section>
+      </article>
 
       {/* TIMELINE + TODOS */}
       <div className="grid gap-6 lg:grid-cols-3">
